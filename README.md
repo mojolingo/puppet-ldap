@@ -89,6 +89,16 @@ With TLS/SSL enabled:
 *NOTE*: SSL certificates should reside in you puppet master
 file repository 'puppet:///files/ldap/'
 
+With password policies enabled:
+
+    class { 'ldap::server::master':
+      suffix          => 'dc=foo,dc=bar',
+      rootpw          => '{SHA}iEPX+SQWIR3p67lj/0zigSWTKHg=',
+      ppolicy         => true,
+      ppolicy_default => 'cn=default,ou=policies,dc=foo,dc=bar',
+      modules_inc     => [ 'ppolicy' ],
+    }
+
 #### Slave server ####
 
 Configure an OpenLdap slave:

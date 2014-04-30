@@ -81,6 +81,16 @@ updateref <%= @sync_provider %>
 
 #######################################################################
 
+#######################################################################
+# << PPolicy
+
+<% if has_variable?('ppolicy') and @ppolicy == true then -%>
+overlay ppolicy
+ppolicy_default "<%= @ppolicy_default %>"
+<% end -%>
+
+#######################################################################
+
 checkpoint   512 30
 dbconfig set_cachesize      0 2097152 0
 dbconfig set_lk_max_objects 1500

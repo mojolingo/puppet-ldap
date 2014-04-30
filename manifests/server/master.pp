@@ -76,6 +76,14 @@
 #
 #    *Optional* (defaults to *'false'*)
 #
+#  [ppolicy]
+#
+#    *Optional* (defaults to *'false'*)
+#
+#  [policy_default]
+#
+#    *Optional* (defaults to *'nil'*)
+#
 #  [enable_motd]
 #    Use motd to report the usage of this module.
 #    *Requires*: https://github.com/torian/puppet-motd.git
@@ -137,6 +145,8 @@ class ldap::server::master(
   $syncprov_checkpoint = '100 10',
   $syncprov_sessionlog = '100',
   $sync_binddn         = false,
+  $ppolicy             = false,
+  $ppolicy_default     = nil,
   $enable_motd         = false,
   $ensure              = present) {
 
@@ -245,7 +255,7 @@ class ldap::server::master(
 
   # Additional configurations (for rc scripts)
   case $::osfamily {
-    
+
     'Debian' : {
       class { 'ldap::server::debian': ssl => $ssl }
     }
