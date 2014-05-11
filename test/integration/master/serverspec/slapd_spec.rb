@@ -34,4 +34,19 @@ describe "slapd" do
   describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" "(objectClass=olcDatabaseConfig)" olcSuffix') do
     it { should return_stdout /olcSuffix: dc=foo,dc=bar/ }
   end
+
+  # The root organisation can be created
+  describe command("echo \"dn: dc=foo,dc=bar\nobjectClass: dcObject\nobjectClass: organization\ndc: foo\no: Foo Dot Bar\" | ldapadd -H ldapi:/// -Y EXTERNAL") do
+    it { should return_stdout /adding new entry/ }
+  end
+
+  # Once created, the root org is readable by system root
+  describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -s base -b "dc=foo,dc=bar"') do
+    it { should return_stdout /o: Foo Dot Bar/ }
+  end
+
+  # Once created, the root org is readable by the DIT root user
+  describe command('ldapsearch -H ldapi:/// -x -D cn=admin,dc=foo,dc=bar -w password -s base -b "dc=foo,dc=bar"') do
+    it { should return_stdout /o: Foo Dot Bar/ }
+  end
 end
