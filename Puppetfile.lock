@@ -1,0 +1,8 @@
+FORGE
+  remote: https://forge.puppetlabs.com
+  specs:
+    puppetlabs/stdlib (3.2.1)
+
+DEPENDENCIES
+  puppetlabs/stdlib (~> 3.0)
+

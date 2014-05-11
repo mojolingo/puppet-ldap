@@ -1,3 +1,7 @@
 .swp
 pkg
 spec/fixtures
+.kitchen/
+.kitchen.local.yml
+.librarian
+.tmp

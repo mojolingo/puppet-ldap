@@ -136,6 +136,12 @@ Requirements
  * If enable_motd is enabled (enable_motd => true) you'll need
    [puppet-motd](https://github.com/torian/puppet-motd.git)
 
+Testing
+-------
+
+Unit tests: `rake spec`
+Integration tests: `kitchen test`
+
 TODO
 ----
 

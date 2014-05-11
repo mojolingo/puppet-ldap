@@ -8,4 +8,4 @@ description 'Manage OpenLDAP clients and server via Puppet'
 project_page 'https://github.com/torian/puppet-ldap'
 
 # Dependency
-dependency 'puppetlabs/stdlib', '>= 4.1.0'
+dependency 'puppetlabs/stdlib', '~> 3.0'
