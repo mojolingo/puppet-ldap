@@ -15,4 +15,3 @@ platforms:
 
 suites:
   - name: master
-    manifest: master.pp
