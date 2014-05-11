@@ -4,7 +4,6 @@ driver:
 
 provisioner:
   name: puppet_apply
-  manifests_path: test/puppet_repo/manifests
   modules_path: ..
 
 platforms:
