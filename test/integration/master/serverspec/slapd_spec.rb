@@ -49,14 +49,14 @@ describe "slapd" do
     it { should return_stdout /o: Foo Dot Bar/ }
   end
 
-  %w{inetorgperson cosine nis core ppolicy}.each do |schema|
-    describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=schema,cn=config" "(objectClass=olcSchemaConfig)" cn') do
+  describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=schema,cn=config" "(objectClass=olcSchemaConfig)" cn') do
+    %w{inetorgperson cosine nis core ppolicy}.each do |schema|
       it { should return_stdout /#{schema}/ }
     end
   end
 
-  %w{back_bdb ppolicy}.each do |mod|
-    describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" "(objectClass=olcModuleList)" olcModuleLoad') do
+  describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" "(objectClass=olcModuleList)" olcModuleLoad') do
+    %w{back_bdb ppolicy}.each do |mod|
       it { should return_stdout /#{mod}/ }
     end
   end
@@ -67,13 +67,13 @@ describe "slapd" do
   end
 
   # DB performance tweaks are set
-  [
-    'set_cachesize 0 2097152 0',
-    'set_lk_max_objects 1500',
-    'set_lk_max_locks 1500',
-    'set_lk_max_lockers 1500',
-  ].each do |tweak|
-    describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" "(objectClass=olcDatabaseConfig)" olcDbConfig') do
+  describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" "(objectClass=olcDatabaseConfig)" olcDbConfig') do
+    [
+      'set_cachesize 0 2097152 0',
+      'set_lk_max_objects 1500',
+      'set_lk_max_locks 1500',
+      'set_lk_max_lockers 1500',
+    ].each do |tweak|
       it { should return_stdout /#{tweak}/ }
     end
   end
