@@ -54,4 +54,10 @@ describe "slapd" do
       it { should return_stdout /#{schema}/ }
     end
   end
+
+  %w{back_bdb ppolicy}.each do |mod|
+    describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" "(objectClass=olcModuleList)" olcModuleLoad') do
+      it { should return_stdout /#{mod}/ }
+    end
+  end
 end
