@@ -80,4 +80,22 @@ describe "slapd" do
   describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" "(objectClass=olcDatabaseConfig)" olcDbCheckpoint') do
     it { should return_stdout /512 30/ }
   end
+
+  # Indices (default and specified)
+  describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" "(objectClass=olcDatabaseConfig)" olcDbIndex') do
+    [
+      'olcDbIndex: objectClass eq',
+      'olcDbIndex: entryCSN eq',
+      'olcDbIndex: entryUUID eq',
+      'olcDbIndex: uidNumber eq',
+      'olcDbIndex: gidNumber eq',
+      'olcDbIndex: cn pres,eq,sub',
+      'olcDbIndex: sn pres,eq,sub',
+      'olcDbIndex: uid pres,eq,sub',
+      'olcDbIndex: displayName pres,eq,sub',
+      'olcDbIndex: mail pres',
+    ].each do |index|
+      it { should return_stdout /#{index}/ }
+    end
+  end
 end

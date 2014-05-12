@@ -3,4 +3,5 @@ class { 'ldap::server::master':
   rootpw      => 'password',
   schema_inc  => ['ppolicy'],
   modules_inc => ['ppolicy'],
+  index_inc   => ['index mail pres'],
 }
