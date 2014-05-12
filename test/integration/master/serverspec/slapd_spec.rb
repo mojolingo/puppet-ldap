@@ -49,7 +49,7 @@ describe "slapd" do
     it { should return_stdout /o: Foo Dot Bar/ }
   end
 
-  %w{inetorgperson cosine nis core}.each do |schema|
+  %w{inetorgperson cosine nis core ppolicy}.each do |schema|
     describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=schema,cn=config" "(objectClass=olcSchemaConfig)" cn') do
       it { should return_stdout /#{schema}/ }
     end
