@@ -10,7 +10,6 @@ RSpec.configure do |c|
 end
 
 describe "slapd" do
-
   describe service('slapd') do
     it { should be_enabled }
     it { should be_running }
