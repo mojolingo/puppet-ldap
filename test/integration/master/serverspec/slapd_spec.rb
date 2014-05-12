@@ -60,4 +60,24 @@ describe "slapd" do
       it { should return_stdout /#{mod}/ }
     end
   end
+
+  # Last-modified overlay is on
+  describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" "(objectClass=olcDatabaseConfig)" olcLastMod') do
+    it { should return_stdout /olcLastMod: TRUE/ }
+  end
+
+  # DB performance tweaks are set
+  [
+    'set_cachesize 0 2097152 0',
+    'set_lk_max_objects 1500',
+    'set_lk_max_locks 1500',
+    'set_lk_max_lockers 1500',
+  ].each do |tweak|
+    describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" "(objectClass=olcDatabaseConfig)" olcDbConfig') do
+      it { should return_stdout /#{tweak}/ }
+    end
+  end
+  describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" "(objectClass=olcDatabaseConfig)" olcDbCheckpoint') do
+    it { should return_stdout /512 30/ }
+  end
 end
