@@ -48,4 +48,10 @@ describe "slapd" do
   describe command('ldapsearch -H ldapi:/// -x -D cn=admin,dc=foo,dc=bar -w password -s base -b "dc=foo,dc=bar"') do
     it { should return_stdout /o: Foo Dot Bar/ }
   end
+
+  %w{inetorgperson cosine nis core}.each do |schema|
+    describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=schema,cn=config" "(objectClass=olcSchemaConfig)" cn') do
+      it { should return_stdout /#{schema}/ }
+    end
+  end
 end
