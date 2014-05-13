@@ -98,4 +98,16 @@ describe "slapd" do
       it { should return_stdout /#{index}/ }
     end
   end
+
+  # ACLs
+  describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(olcSuffix=dc=foo,dc=bar)" olcAccess | perl -p00e \'s/\r?\n //g\'') do
+    [
+      /to \*  by dn.base="gidNumber=0\+uidNumber=0,cn=peercred,cn=external,cn=auth" manage/,
+      /to dn.subtree="dc=foo,dc=bar"  attrs=userPassword,shadowLastChange  by self write  by anonymous auth  by \* none/,
+      /to dn.subtree="dc=foo,dc=bar"  attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid  by \* read/,
+      /to dn.subtree="dc=foo,dc=bar"  by self read  by \* read/,
+    ].each do |entry|
+      it { should return_stdout entry }
+    end
+  end
 end
