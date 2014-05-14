@@ -10,11 +10,7 @@ provisioner:
   puppet_debug: true
 
 platforms:
-- name: nocm_ubuntu-12.04
-  driver_plugin: vagrant
-  driver_config:
-    box: nocm_ubuntu-12.04
-    box_url: http://puppet-vagrant-boxes.puppetlabs.com/ubuntu-server-12042-x64-vbox4210-nocm.box
+  - name: ubuntu-12.04
 
 suites:
   - name: master
