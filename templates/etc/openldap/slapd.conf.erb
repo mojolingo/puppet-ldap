@@ -3,7 +3,6 @@
 # Manual changes are likey to be overwritten
 ###############################################################################
 
-#allow bind_v2
 <% if @bind_anon == true then -%>
 allow bind_anon_dn
 <% end -%>
@@ -32,13 +31,11 @@ moduleload	<%= mod %>
 <% @modules_inc.each do |mod| -%>
 moduleload	<%= mod %>
 <% end -%>
-#moduleload	syncprov
 
 <% if @ssl == true then -%>
 TLSCACertificateFile   <%= scope.lookupvar('ldap::params::ssl_prefix') %>/<%= @ssl_ca   %>
 TLSCertificateFile     <%= scope.lookupvar('ldap::params::ssl_prefix') %>/<%= @ssl_cert %>
 TLSCertificateKeyFile  <%= scope.lookupvar('ldap::params::ssl_prefix') %>/<%= @ssl_key  %>
-#TLSVerifyClient        allow
 <% end -%>
 
 #######################################################################
@@ -118,14 +115,6 @@ access to dn.subtree="<%= @suffix %>" attrs=userPassword,shadowLastChange,
 	by self write
 	by anonymous auth
 	by * none
-
-#access to dn.subtree="<%= @suffix %>" attrs=sambaNTPassword,sambaLMPassword,sambaPwdMustChange,sambaBadPasswordCount,sambaBadPasswordTime,sambaPwdLastSet
-#<% if @syncprov and @sync_binddn != false then -%>
-#	by dn.exact="<%= @sync_binddn %>" read
-#<% end -%>
-#	by self write
-#	by anonymous auth
-#	by * none
 
 ## some attributes need to be readable anonymously so that 'id user' can answer correctly
 access to dn.subtree="<%= @suffix %>" attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid
