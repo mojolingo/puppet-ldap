@@ -130,7 +130,7 @@ describe "slapd slave" do
       case os[:family]
       when 'RedHat'
         '/etc/openldap/certs'
-      when 'Debian'
+      when 'Debian', 'Ubuntu'
         '/etc/ssl/certs'
       end
     end
