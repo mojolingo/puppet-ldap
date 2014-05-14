@@ -146,8 +146,22 @@ class ldap::server::master(
     motd::register { 'ldap::server::master': }
   }
 
+  file { ['/var/cache/local', '/var/cache/local/preseeding']:
+    ensure  => directory,
+    owner   => 'root',
+    group   => 'root',
+  }
+
+  file { "/var/cache/local/preseeding/slapd.seed":
+    ensure  => present,
+    content => template("ldap/slapd.seed.erb"),
+    owner   => 'root',
+    group   => 'root',
+  }
+
   package { $ldap::params::server_package:
-    ensure => $ensure
+    ensure        => $ensure,
+    responsefile  => "/var/cache/local/preseeding/slapd.seed",
   }
 
   service { $ldap::params::service:
@@ -156,8 +170,8 @@ class ldap::server::master(
     pattern    => $ldap::params::server_pattern,
     require    => [
       Package[$ldap::params::server_package],
-      File["${ldap::params::prefix}/${ldap::params::server_config}"],
-      ]
+      Exec['slapd-config-convert'],
+      ],
   }
 
   if (!empty($cnconfig_attrs)) {
@@ -185,7 +199,7 @@ class ldap::server::master(
   file { "${ldap::params::prefix}/${ldap::params::server_config}":
     ensure  => $ensure,
     content => template("ldap/${ldap::params::prefix}/${ldap::params::server_config}.erb"),
-    notify  => Service[$ldap::params::service],
+    notify  => Exec['slapd-config-convert'],
     require => $ssl ? {
       false => [
         Package[$ldap::params::server_package],
@@ -197,6 +211,13 @@ class ldap::server::master(
         File['ssl_key'],
         ]
       }
+  }
+
+  exec { "slapd-config-convert":
+    command     => "/bin/sh -c 'rm -rf ${ldap::params::prefix}/slapd.d/* && rm -rf ${ldap::params::db_prefix}/* && /usr/sbin/slaptest -n 0 -f ${ldap::params::prefix}/${ldap::params::server_config} -F ${ldap::params::prefix}/slapd.d/ && /bin/chown -R ${ldap::params::server_owner}:${ldap::params::server_group} ${ldap::params::prefix}/slapd.d'",
+    refreshonly => true,
+    notify      => Service[$ldap::params::service],
+    user        => $ldap::params::server_owner,
   }
 
   $msg_prefix = 'SSL enabled. You must specify'
