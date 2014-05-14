@@ -161,7 +161,7 @@ class ldap::params {
 
         default : {
           $schema_base   = [ 'core', 'cosine', 'nis', 'inetorgperson', ]
-          $modules_base  = [ ]
+          $modules_base  = [ 'back_bdb' ]
         }
 
       }
