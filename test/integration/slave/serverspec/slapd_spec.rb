@@ -9,7 +9,7 @@ RSpec.configure do |c|
   end
 end
 
-describe "slapd master" do
+describe "slapd slave" do
   describe service('slapd') do
     it { should be_enabled }
     it { should be_running }
@@ -103,9 +103,9 @@ describe "slapd master" do
   describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(olcSuffix=dc=foo,dc=bar)" olcAccess | perl -p00e \'s/\r?\n //g\'') do
     [
       /to \*  by dn.base="gidNumber=0\+uidNumber=0,cn=peercred,cn=external,cn=auth" manage/,
-      /to dn.subtree="dc=foo,dc=bar"  attrs=userPassword,shadowLastChange  by dn.base="cn=sync,dc=foo,dc=bar" read  by self write  by anonymous auth  by \* none/,
-      /to dn.subtree="dc=foo,dc=bar"  attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid  by dn.base="cn=sync,dc=foo,dc=bar" read  by \* read/,
-      /to dn.subtree="dc=foo,dc=bar"  by dn.base="cn=sync,dc=foo,dc=bar" read  by self read  by \* read/,
+      /to dn.subtree="dc=foo,dc=bar"  attrs=userPassword,shadowLastChange  by self write  by anonymous auth  by \* none/,
+      /to dn.subtree="dc=foo,dc=bar"  attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid  by \* read/,
+      /to dn.subtree="dc=foo,dc=bar"  by self read  by \* read/,
     ].each do |entry|
       it { should return_stdout entry }
     end
@@ -116,12 +116,12 @@ describe "slapd master" do
     it { should return_stdout /syncprov/ }
   end
 
-  describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(objectClass=olcSyncProvConfig)" olcSpCheckpoint') do
-    it { should return_stdout /100 10/ }
-  end
-
-  describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(objectClass=olcSyncProvConfig)" olcSpSessionlog') do
-    it { should return_stdout /100/ }
+  describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(objectClass=olcDatabaseConfig)" olcSyncrepl') do
+    its(:stdout) { should include 'rid=123 provider=ldapi:/// bindmethod=simple timeout=0 network-ti
+ meout=0 binddn="cn=sync,dc=foo,dc=bar" credentials="foobar" keepalive=0:0:0 s
+ tarttls=no filter="(objectClass=*)" searchbase="dc=foo,dc=bar" scope=sub attr
+ s="*" schemachecking=off type=refreshOnly interval=00:00:10:00 retry=undefine
+ d' }
   end
 
   # TLS

@@ -18,3 +18,4 @@ platforms:
 
 suites:
   - name: master
+  - name: slave
