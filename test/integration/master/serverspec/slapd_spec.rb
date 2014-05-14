@@ -124,4 +124,10 @@ describe "slapd" do
     it { should return_stdout /100/ }
   end
 
+  # TLS
+  describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(cn=config)"') do
+    it { should return_stdout %r{olcTLSCACertificateFile: /etc/ssl/certs/ca\.pem} }
+    it { should return_stdout %r{olcTLSCertificateFile: /etc/ssl/certs/master-ldap\.pem} }
+    it { should return_stdout %r{olcTLSCertificateKeyFile: /etc/ssl/certs/master-ldap\.key} }
+  end
 end

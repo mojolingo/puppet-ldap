@@ -5,6 +5,8 @@ driver:
 provisioner:
   name: puppet_apply
   modules_path: ..
+  fileserver_config_path: puppet/fileserver.conf
+  files_path: puppet/files
 
 platforms:
 - name: nocm_ubuntu-12.04

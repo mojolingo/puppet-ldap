@@ -6,4 +6,8 @@ class { 'ldap::server::master':
   index_inc   => ['index mail pres'],
   syncprov    => true,
   sync_binddn => 'cn=sync,dc=foo,dc=bar',
+  ssl         => true,
+  ssl_ca      => 'ca.pem',
+  ssl_cert    => 'master-ldap.pem',
+  ssl_key     => 'master-ldap.key',
 }

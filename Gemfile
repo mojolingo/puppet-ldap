@@ -9,5 +9,5 @@ gem 'puppetlabs_spec_helper', '~> 0.4.1'
 
 gem 'test-kitchen', '~> 1.0'
 gem 'kitchen-vagrant'
-gem 'kitchen-puppet', github: 'neillturner/kitchen-puppet'
+gem 'kitchen-puppet', github: 'mojolingo/kitchen-puppet', branch: 'feature/fileserver'
 gem 'librarian-puppet'

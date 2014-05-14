@@ -1,8 +1,9 @@
 GIT
-  remote: git://github.com/neillturner/kitchen-puppet.git
-  revision: ba421cb513426c15c4f2aaafc7e975217cf8978e
+  remote: git://github.com/mojolingo/kitchen-puppet.git
+  revision: 2c91e3004ac04a399acb320939e81ecd6a367ef0
+  branch: feature/fileserver
   specs:
-    kitchen-puppet (0.0.7)
+    kitchen-puppet (0.0.8)
 
 GEM
   remote: https://rubygems.org/
