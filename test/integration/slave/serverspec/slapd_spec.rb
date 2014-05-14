@@ -69,10 +69,10 @@ describe "slapd slave" do
   # DB performance tweaks are set
   describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" "(objectClass=olcDatabaseConfig)" olcDbConfig') do
     [
-      'set_cachesize 0 2097152 0',
-      'set_lk_max_objects 1500',
-      'set_lk_max_locks 1500',
-      'set_lk_max_lockers 1500',
+      'set_cachesize\s*0 2097152 0',
+      'set_lk_max_objects\s*1500',
+      'set_lk_max_locks\s*1500',
+      'set_lk_max_lockers\s*1500',
     ].each do |tweak|
       it { should return_stdout /#{tweak}/ }
     end
@@ -126,9 +126,17 @@ describe "slapd slave" do
 
   # TLS
   describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(cn=config)"') do
-    it { should return_stdout %r{olcTLSCACertificateFile: /etc/ssl/certs/ca\.pem} }
-    it { should return_stdout %r{olcTLSCertificateFile: /etc/ssl/certs/master-ldap\.pem} }
-    it { should return_stdout %r{olcTLSCertificateKeyFile: /etc/ssl/certs/master-ldap\.key} }
+    let(:cert_path) do
+      case os[:family]
+      when 'RedHat'
+        '/etc/openldap/certs'
+      when 'Debian'
+        '/etc/ssl/certs'
+      end
+    end
+    it { should return_stdout %r{olcTLSCACertificateFile: #{cert_path}/ca\.pem} }
+    it { should return_stdout %r{olcTLSCertificateFile: #{cert_path}/master-ldap\.pem} }
+    it { should return_stdout %r{olcTLSCertificateKeyFile: #{cert_path}/master-ldap\.key} }
   end
   describe command('ldapwhoami -H ldaps:/// -x -D cn=admin,dc=foo,dc=bar -w password') do
     it { should return_stdout /dn:cn=admin,dc=foo,dc=bar/ }
