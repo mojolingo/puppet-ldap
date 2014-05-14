@@ -1,3 +1,10 @@
+class { 'ldap::client':
+  uri      => 'ldaps:///',
+  base     => 'dc=foo,dc=bar',
+  ssl      => true,
+  ssl_cert => 'master-ldap.client.pem',
+}
+
 class { 'ldap::server::master':
   suffix      => 'dc=foo,dc=bar',
   rootpw      => 'password',

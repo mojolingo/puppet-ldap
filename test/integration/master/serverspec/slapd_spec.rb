@@ -130,4 +130,7 @@ describe "slapd" do
     it { should return_stdout %r{olcTLSCertificateFile: /etc/ssl/certs/master-ldap\.pem} }
     it { should return_stdout %r{olcTLSCertificateKeyFile: /etc/ssl/certs/master-ldap\.key} }
   end
+  describe command('ldapwhoami -H ldaps:/// -x -D cn=admin,dc=foo,dc=bar -w password') do
+    it { should return_stdout /dn:cn=admin,dc=foo,dc=bar/ }
+  end
 end
