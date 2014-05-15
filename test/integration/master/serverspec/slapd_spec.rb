@@ -141,4 +141,9 @@ describe "slapd master" do
   describe command('ldapwhoami -H ldaps:/// -x -D cn=admin,dc=foo,dc=bar -w password') do
     it { should return_stdout /dn:cn=admin,dc=foo,dc=bar/ }
   end
+
+  # Directory can be manipulated by ldapdn resources
+  describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -s base -b "ou=users,dc=foo,dc=bar" "(objectClass=organizationalUnit)"') do
+    it { should return_stdout /ou: users/ }
+  end
 end

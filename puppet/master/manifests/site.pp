@@ -18,3 +18,13 @@ class { 'ldap::server::master':
   ssl_cert    => 'master-ldap.pem',
   ssl_key     => 'master-ldap.key',
 }
+
+ldapdn { "ou users":
+  dn => "ou=users,dc=foo,dc=bar",
+  attributes => [
+    'ou: users',
+    'objectClass: organizationalUnit'
+  ],
+  unique_attributes => ["ou"],
+  ensure => present,
+}
