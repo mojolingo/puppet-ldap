@@ -22,13 +22,11 @@ Puppet::Type.type(:ldapdn).provide :ldapdn do
     # This is a bit of a butchery of an exists? method which is designed to return yes or no,
     # Whereas we are editing a multi-faceted record, and it might be in a semi-desired state.
     # However, as I want to still use the ensure param, I will have to live within its rules
-
-    if @work_to_do.empty?
-      true if resource[:ensure] == :present
-      false if resource[:ensure] == :absent
-    else
-      false if resource[:ensure] == :present
-      true if resource[:ensure] == :absent
+    case resource[:ensure]
+    when :present
+      @work_to_do.empty?
+    when :absent
+      !@work_to_do.empty?
     end
   end
 
@@ -50,11 +48,13 @@ Puppet::Type.type(:ldapdn).provide :ldapdn do
       modify_record << "changetype: modify" if modify_type == :ldapmodify
 
       modifications.each do |attribute, instructions|
-        add_type="add"
+        add_type = "add"
         instructions.each do |instruction|
           case instruction.first
           when :add
-            modify_record << "add: #{attribute}" if add_type == "add" and modify_type == :ldapmodify
+            if add_type == "add" and modify_type == :ldapmodify
+              modify_record << "add: #{attribute}"
+            end
             modify_record << "#{attribute}: #{instruction.last}"
             modify_record << "-" if modify_type == :ldapmodify
           when :delete
@@ -96,7 +96,7 @@ Puppet::Type.type(:ldapdn).provide :ldapdn do
     command += resource[:auth_opts] || ["-QY", "EXTERNAL"]
     begin
       ldapsearch_output = execute(command)
-      Puppet.debug("ldapdn >>\n#{to_json2(asserted_attributes)}")
+      Puppet.debug("ldapdn >>\n#{asserted_attributes.inspect}")
       Puppet.debug("ldapsearch >>\n#{ldapsearch_output}")
     rescue Puppet::ExecutionFailure => ex
       if ex.message.scan '/No such object (32)/'
@@ -169,38 +169,14 @@ Puppet::Type.type(:ldapdn).provide :ldapdn do
       end
     end
 
-    work_to_do.delete_if {|key, operations| operations.empty?}
+    work_to_do.delete_if { |key, operations| operations.empty? }
 
     if work_to_do.empty?
       Puppet.debug("conclusion: nothing to do")
       {}
     else
-      Puppet.debug("conclusion: work to do: #{to_json2(work_to_do)}")
+      Puppet.debug("conclusion: work to do: #{work_to_do.inspect}")
       { :ldapmodify => work_to_do }
     end
-  end
-
-  def to_json2(stringin)
-    case stringin.class.to_s
-    when "String"
-      return "'" + stringin + "'"
-    when "Array"
-      x = []
-      stringin.each do |term|
-        x << to_json2(term)
-      end
-      return "[ " + x.join(', ') + " ]"
-    when "Hash"
-      x = []
-      stringin.each do |key, value|
-        x << [to_json2(key), to_json2(value)]
-      end
-      return "{ " + x.collect {|k| k.first.to_s + " => " + k.last.to_s}.join(', ') + " }"
-    when "Symbol"
-      return ":" + stringin.to_s
-    else
-      return "!OBJ(" + stringin.class.to_s + ":" + stringin.to_s + ")"
-    end
-    return ""
   end
 end
