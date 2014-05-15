@@ -39,7 +39,6 @@
 #
 class ldap($ensure = present) {
 
-    include stdlib
     include ldap::params
 
     package { $ldap::params::package :

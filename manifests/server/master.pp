@@ -32,8 +32,9 @@
 #
 #  [cnconfig_attrs]
 #    Default cn=config attributes that needs to be changed
-#    upon runs
-#    *Optional* (defaults to {})
+#    upon runs. An array of attributes as key-value pairs.
+#    eg. ['olcConcurrency: 1']
+#    *Optional* (defaults to [])
 #
 #  [log_level]
 #
@@ -126,7 +127,7 @@ class ldap::server::master(
   $schema_inc          = [],
   $modules_inc         = [],
   $index_inc           = [],
-  $cnconfig_attrs      = {},
+  $cnconfig_attrs      = [],
   $log_level           = '0',
   $bind_anon           = true,
   $ssl                 = false,
@@ -174,20 +175,11 @@ class ldap::server::master(
       ],
   }
 
-  if (!empty($cnconfig_attrs)) {
-
-    $cnconfig_default_attrs = $ldap::params::cnconfig_default_attrs
-
-    file {"${ldap::params::prefix}/slapd.d/cn=config-update.ldif":
-      ensure  => present,
-      content => template("ldap/${ldap::params::prefix}/slapd.d/cn=config-update.ldif.erb"),
-      require => Service[$ldap::params::service],
-    }
-
-    exec{"/usr/bin/ldapmodify -Y EXTERNAL -H ldapi:/// -f ${ldap::params::prefix}/slapd.d/cn=config-update.ldif && rm -f ${ldap::params::prefix}/slapd.d/cn=config-update.ldif":
-      require => File["${ldap::params::prefix}/slapd.d/cn=config-update.ldif"],
-    }
-
+  ldapdn { "cnconfig_attrs":
+    dn                => "cn=config",
+    attributes        => $cnconfig_attrs,
+    unique_attributes => $ldap::params::cnconfig_default_attrs,
+    ensure            => present,
   }
 
   File {

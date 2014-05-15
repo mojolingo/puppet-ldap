@@ -6,6 +6,3 @@ license 'GPL v2'
 summary 'OpenLDAP module for Puppet.'
 description 'Manage OpenLDAP clients and server via Puppet'
 project_page 'https://github.com/torian/puppet-ldap'
-
-# Dependency
-dependency 'puppetlabs/stdlib', '~> 3.0'
