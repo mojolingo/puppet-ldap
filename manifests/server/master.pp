@@ -206,7 +206,7 @@ class ldap::server::master(
   }
 
   exec { "slapd-config-convert":
-    command     => "/bin/sh -c 'rm -rf ${ldap::params::prefix}/slapd.d/* && rm -rf ${ldap::params::db_prefix}/* && /usr/sbin/slaptest -n 0 -f ${ldap::params::prefix}/${ldap::params::server_config} -F ${ldap::params::prefix}/slapd.d/ && /bin/chown -R ${ldap::params::server_owner}:${ldap::params::server_group} ${ldap::params::prefix}/slapd.d'",
+    command     => "/bin/sh -c 'rm -rf ${ldap::params::prefix}/slapd.d/* && /usr/sbin/slaptest -n 0 -f ${ldap::params::prefix}/${ldap::params::server_config} -F ${ldap::params::prefix}/slapd.d/ && /bin/chown -R ${ldap::params::server_owner}:${ldap::params::server_group} ${ldap::params::prefix}/slapd.d'",
     refreshonly => true,
     notify      => Service[$ldap::params::service],
     user        => $ldap::params::server_owner,
