@@ -20,6 +20,19 @@ class { 'ldap::server::master':
   cnconfig_attrs  => ['olcConcurrency: 1'],
 }
 
+ldapdn { 'add database':
+  ensure            => present,
+  dn                => 'dc=foo,dc=bar',
+  attributes        => [
+    'dc: foo',
+    'objectClass: top',
+    'objectClass: dcObject',
+    'objectClass: organization',
+    'o: Foo Dot Bar',
+  ],
+  unique_attributes => ['dc', 'o'],
+}
+
 ldapdn { "ou users":
   dn                => "ou=users,dc=foo,dc=bar",
   attributes        => [
@@ -28,4 +41,5 @@ ldapdn { "ou users":
   ],
   unique_attributes => ["ou"],
   ensure            => present,
+  require           => Ldapdn['add database'],
 }

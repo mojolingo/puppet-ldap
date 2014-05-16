@@ -34,11 +34,6 @@ describe "slapd master" do
     it { should return_stdout /olcSuffix: dc=foo,dc=bar/ }
   end
 
-  # The root organisation can be created
-  describe command("echo \"dn: dc=foo,dc=bar\nobjectClass: dcObject\nobjectClass: organization\ndc: foo\no: Foo Dot Bar\" | ldapadd -H ldapi:/// -Y EXTERNAL") do
-    it { should return_stdout /adding new entry/ }
-  end
-
   # Once created, the root org is readable by system root
   describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -s base -b "dc=foo,dc=bar"') do
     it { should return_stdout /o: Foo Dot Bar/ }
