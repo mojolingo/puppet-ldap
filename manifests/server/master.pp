@@ -166,13 +166,13 @@ class ldap::server::master(
   }
 
   service { $ldap::params::service:
-    ensure     => running,
-    enable     => true,
-    pattern    => $ldap::params::server_pattern,
-    require    => [
+    ensure  => running,
+    enable  => true,
+    pattern => $ldap::params::server_pattern,
+    require => [
       Package[$ldap::params::server_package],
       Exec['slapd-config-convert'],
-      ],
+    ],
   }
 
   ldapdn { "cnconfig_attrs":
@@ -183,9 +183,9 @@ class ldap::server::master(
   }
 
   File {
-    mode    => '0640',
-    owner   => $ldap::params::server_owner,
-    group   => $ldap::params::server_group,
+    mode  => '0640',
+    owner => $ldap::params::server_owner,
+    group => $ldap::params::server_group,
   }
 
   file { "${ldap::params::prefix}/${ldap::params::server_config}":
@@ -210,6 +210,7 @@ class ldap::server::master(
     refreshonly => true,
     notify      => Service[$ldap::params::service],
     user        => $ldap::params::server_owner,
+
   }
 
   $msg_prefix = 'SSL enabled. You must specify'
