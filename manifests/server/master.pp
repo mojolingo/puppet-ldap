@@ -258,7 +258,7 @@ class ldap::server::master(
 
   # Additional configurations (for rc scripts)
   case $::osfamily {
-    
+
     'Debian' : {
       class { 'ldap::server::debian': ssl => $ssl }
     }
