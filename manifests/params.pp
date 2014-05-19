@@ -1,6 +1,8 @@
 
 class ldap::params {
 
+  $moduledir = "${::puppet_vardir}/ldap"
+
   case $::osfamily {
 
     'Debian' : {

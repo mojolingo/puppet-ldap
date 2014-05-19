@@ -171,8 +171,69 @@ class ldap::server::master(
     pattern => $ldap::params::server_pattern,
     require => [
       Package[$ldap::params::server_package],
-      Exec['slapd-config-convert'],
     ],
+  }
+
+  ldapdn { "database config":
+    dn                => "olcDatabase={1}bdb,cn=config",
+    attributes        => [
+      'olcAccess: to *  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage',
+      'olcAccess: to dn.subtree="dc=foo,dc=bar"  attrs=userPassword,shadowLastChange  by dn.base="cn=sync,dc=foo,dc=bar" read  by self write  by anonymous auth  by * none',
+      'olcAccess: to dn.subtree="dc=foo,dc=bar"  attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid  by dn.base="cn=sync,dc=foo,dc=bar" read  by * read',
+      'olcAccess: to dn.subtree="dc=foo,dc=bar"  by dn.base="cn=sync,dc=foo,dc=bar" read  by self read  by * read',
+      'olcDbIndex: objectClass eq',
+      'olcDbIndex: entryCSN eq',
+      'olcDbIndex: entryUUID eq',
+      'olcDbIndex: uidNumber eq',
+      'olcDbIndex: gidNumber eq',
+      'olcDbIndex: cn pres,eq,sub',
+      'olcDbIndex: sn pres,eq,sub',
+      'olcDbIndex: uid pres,eq,sub',
+      'olcDbIndex: displayName pres,eq,sub',
+      'olcDbIndex: mail pres',
+      'olcLastMod: TRUE',
+      "olcRootPW: ${rootpw}",
+    ],
+    unique_attributes => [
+      'olcAccess',
+      'olcLastMod',
+      'olcRootPW',
+    ],
+    ensure            => present,
+  }
+
+  ldapdn { "module config":
+    dn                => "cn=module{0},cn=config",
+    attributes        => [
+      "olcModulePath: ${ldap::params::module_prefix}",
+    ],
+    unique_attributes => ['olcModulePath'],
+    ensure            => present,
+  }
+
+  ldap::module { $ldap::params::modules_base: }
+  ldap::module { $modules_inc: }
+
+  ldap::builtin_schema { $ldap::params::schema_base: }
+  ldap::builtin_schema { $schema_inc: }
+
+  if($syncprov) {
+    ldapdn { "syncprov_config":
+      dn                => "olcOverlay=syncprov,olcDatabase={1}bdb,cn=config",
+      attributes        => [
+        'objectClass: olcOverlayConfig',
+        'objectClass: olcSyncProvConfig',
+        'olcOverlay: syncprov',
+        "olcSpCheckpoint: ${syncprov_checkpoint}",
+        "olcSpSessionLog: ${syncprov_sessionlog}",
+      ],
+      unique_attributes => [
+        'olcOverlay',
+        'olcSpCheckpoint',
+        'olcSpSessionlog',
+      ],
+      ensure            => present,
+    }
   }
 
   ldapdn { "cnconfig_attrs":
@@ -186,31 +247,6 @@ class ldap::server::master(
     mode  => '0640',
     owner => $ldap::params::server_owner,
     group => $ldap::params::server_group,
-  }
-
-  file { "${ldap::params::prefix}/${ldap::params::server_config}":
-    ensure  => $ensure,
-    content => template("ldap/${ldap::params::prefix}/${ldap::params::server_config}.erb"),
-    notify  => Exec['slapd-config-convert'],
-    require => $ssl ? {
-      false => [
-        Package[$ldap::params::server_package],
-        ],
-      true  => [
-        Package[$ldap::params::server_package],
-        File['ssl_ca'],
-        File['ssl_cert'],
-        File['ssl_key'],
-        ]
-      }
-  }
-
-  exec { "slapd-config-convert":
-    command     => "/bin/sh -c 'rm -rf ${ldap::params::prefix}/slapd.d/* && /usr/sbin/slaptest -n 0 -f ${ldap::params::prefix}/${ldap::params::server_config} -F ${ldap::params::prefix}/slapd.d/ && /bin/chown -R ${ldap::params::server_owner}:${ldap::params::server_group} ${ldap::params::prefix}/slapd.d'",
-    refreshonly => true,
-    notify      => Service[$ldap::params::service],
-    user        => $ldap::params::server_owner,
-
   }
 
   $msg_prefix = 'SSL enabled. You must specify'
@@ -253,6 +289,19 @@ class ldap::server::master(
                   },
       require  => File['ssl_cert'],
       path     => [ "/bin", "/usr/bin", "/sbin", "/usr/sbin" ]
+    }
+
+    ldapdn { "SSL config":
+      dn                => "cn=config",
+      attributes        => [
+        "olcTLSCACertificateFile: ${ldap::params::ssl_prefix}/${ssl_ca}",
+        "olcTLSCertificateFile: ${ldap::params::ssl_prefix}/${ssl_cert}",
+        "olcTLSCertificateKeyFile: ${ldap::params::ssl_prefix}/${ssl_key}",
+      ],
+      unique_attributes => $ldap::params::cnconfig_default_attrs,
+      ensure            => present,
+      require           => [File['ssl_ca'], File['ssl_cert'], File['ssl_key'], Exec['Server certificate hash']],
+      notify            => Service[$ldap::params::service],
     }
 
   }

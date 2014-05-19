@@ -7,45 +7,16 @@
 allow bind_anon_dn
 <% end -%>
 
-# Schema and objectClass definitions
-<% scope.lookupvar('ldap::params::schema_base').each do |schema| -%>
-include		<%= scope.lookupvar('ldap::params::schema_prefix') %>/<%= schema %>.schema
-<% end -%>
-
-# Additional schemas
-<% scope.lookupvar('schema_inc').each do |schema| -%>
-include		<%= scope.lookupvar('ldap::params::schema_prefix') %>/<%= schema %>.schema
-<% end -%>
-
 pidfile         <%= scope.lookupvar('ldap::params::server_run') %>/slapd.pid
 argsfile        <%= scope.lookupvar('ldap::params::server_run') %>/slapd.args
 
 # Read slapd.conf(5) for possible values
 loglevel	<%= @log_level %>
 
-modulepath	<%= scope.lookupvar('ldap::params::module_prefix') %>
-<% scope.lookupvar('ldap::params::modules_base').each do |mod| -%>
-moduleload	<%= mod %>
-<% end -%>
-
-<% @modules_inc.each do |mod| -%>
-moduleload	<%= mod %>
-<% end -%>
-
-<% if @ssl == true then -%>
-TLSCACertificateFile   <%= scope.lookupvar('ldap::params::ssl_prefix') %>/<%= @ssl_ca   %>
-TLSCertificateFile     <%= scope.lookupvar('ldap::params::ssl_prefix') %>/<%= @ssl_cert %>
-TLSCertificateKeyFile  <%= scope.lookupvar('ldap::params::ssl_prefix') %>/<%= @ssl_key  %>
-<% end -%>
-
 #######################################################################
 
 # FIXME: puppet
 backend		bdb
-
-database config
-access to *
-  by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage
 
 # FIXME: puppet
 database	bdb
@@ -56,12 +27,6 @@ rootpw		"<%= @rootpw %>"
 
 #######################################################################
 # << Syncprov
-
-<% if has_variable?('syncprov') and @syncprov == true then -%>
-overlay syncprov
-syncprov-checkpoint <%= @syncprov_checkpoint %>
-syncprov-sessionlog <%= @syncprov_sessionlog %>
-<% end -%>
 
 <% if has_variable?('sync_rid') then -%>
 syncrepl rid=<%= @sync_rid %>
@@ -80,18 +45,6 @@ syncrepl rid=<%= @sync_rid %>
 updateref <%= @sync_provider %>
 <% end -%>
 
-#######################################################################
-
-checkpoint   512 30
-dbconfig set_cachesize      0 2097152 0
-dbconfig set_lk_max_objects 1500
-dbconfig set_lk_max_locks   1500
-dbconfig set_lk_max_lockers 1500
-
-#######################################################################
-
-lastmod		on
-
 <% if @syncprov and @sync_binddn != false then -%>
 limits dn.exact="<%= @sync_binddn%>" time.soft=unlimited time.hard=unlimited size.soft=unlimited size.hard=unlimited
 <% end -%>
@@ -103,29 +56,3 @@ limits dn.exact="<%= @sync_binddn%>" time.soft=unlimited time.hard=unlimited siz
 <% @index_inc.each do |idx| -%>
 <%= idx %>
 <% end -%>
-
-access to *
-  by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage
-
-# users can authenticate and change their password
-access to dn.subtree="<%= @suffix %>" attrs=userPassword,shadowLastChange,
-<% if @syncprov and @sync_binddn != false then -%>
-	by dn.exact="<%= @sync_binddn %>" read
-<% end -%>
-	by self write
-	by anonymous auth
-	by * none
-
-## some attributes need to be readable anonymously so that 'id user' can answer correctly
-access to dn.subtree="<%= @suffix %>" attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid
-<% if @syncprov and @sync_binddn != false then -%>
-	by dn.exact="<%= @sync_binddn %>" read
-<% end -%>
-	by * read
-
-access to dn.subtree="<%= @suffix %>"
-<% if @syncprov and @sync_binddn != false then -%>
-	by dn.exact="<%= @sync_binddn %>" read
-<% end -%>
-	by self read
-	by * read

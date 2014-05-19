@@ -54,6 +54,8 @@ Puppet::Type.type(:ldapdn).provide :ldapdn do
           when :add
             if add_type == "add" and modify_type == :ldapmodify
               modify_record << "add: #{attribute}"
+            else
+              add_type = "add"
             end
             modify_record << "#{attribute}: #{instruction.last}"
             modify_record << "-" if modify_type == :ldapmodify
