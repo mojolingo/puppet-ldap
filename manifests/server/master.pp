@@ -239,10 +239,13 @@ class ldap::server::master(
   ldapdn { "global confg":
     dn                => "cn=config",
     attributes        => [
+      "olcArgsFile: ${ldap::params::server_run}/slapd.args",
       "olcLogLevel: ${log_level}",
+      "olcPidFile: ${ldap::params::server_run}/slapd.pid",
     ],
     unique_attributes => $ldap::params::cnconfig_default_attrs,
     ensure            => present,
+    notify            => Service[$ldap::params::service],
   }
 
   ldapdn { "cnconfig_attrs":

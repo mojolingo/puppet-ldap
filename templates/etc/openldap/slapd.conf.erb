@@ -7,12 +7,6 @@
 allow bind_anon_dn
 <% end -%>
 
-pidfile         <%= scope.lookupvar('ldap::params::server_run') %>/slapd.pid
-argsfile        <%= scope.lookupvar('ldap::params::server_run') %>/slapd.args
-
-# Read slapd.conf(5) for possible values
-loglevel	<%= @log_level %>
-
 #######################################################################
 
 # FIXME: puppet

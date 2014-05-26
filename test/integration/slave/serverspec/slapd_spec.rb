@@ -156,4 +156,14 @@ describe "slapd slave" do
   describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(cn=config)" olcLogLevel') do
     it { should return_stdout %r{olcLogLevel: 4} }
   end
+
+  # PID file
+  describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(cn=config)" olcPidFile') do
+    it { should return_stdout %r{olcPidFile: /var/run/slapd/slapd.pid} }
+  end
+
+  # Args file
+  describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(cn=config)" olcArgsFile') do
+    it { should return_stdout %r{olcArgsFile: /var/run/slapd/slapd.args} }
+  end
 end
