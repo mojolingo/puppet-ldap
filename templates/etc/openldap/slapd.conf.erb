@@ -19,30 +19,6 @@ directory	<%= scope.lookupvar('ldap::params::db_prefix') %>
 rootdn		"<%= @rootdn %>"
 rootpw		"<%= @rootpw %>"
 
-#######################################################################
-# << Syncprov
-
-<% if has_variable?('sync_rid') then -%>
-syncrepl rid=<%= @sync_rid %>
-	provider=<%= @sync_provider %>
-	type=<%= @sync_type %>
-	interval=<%= @sync_interval %>
-	searchbase="<% if @sync_base == '' then %><%= @suffix %><% else %><%= @sync_base %><% end %>"
-	filter="<%= @sync_filter %>"
-	attrs="<%= @sync_attrs %>"
-	scope=<%= @sync_scope %>
-	schemachecking=off
-	bindmethod=simple
-	binddn="<%= @sync_binddn %>"
-	credentials="<%= @sync_bindpw %>"
-
-updateref <%= @sync_provider %>
-<% end -%>
-
-<% if @syncprov and @sync_binddn != false then -%>
-limits dn.exact="<%= @sync_binddn%>" time.soft=unlimited time.hard=unlimited size.soft=unlimited size.hard=unlimited
-<% end -%>
-
 <% scope.lookupvar('ldap::params::index_base').each do |idx| -%>
 <%= idx %>
 <% end -%>

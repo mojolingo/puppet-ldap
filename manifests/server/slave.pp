@@ -186,7 +186,7 @@ class ldap::server::slave(
   $ssl_key        = false,
   $sync_type      = 'refreshOnly',
   $sync_interval  = '00:00:10:00',
-  $sync_base      = '',
+  $sync_base      = $suffix,
   $sync_filter    = '(objectClass=*)',
   $sync_attrs     = '*',
   $sync_scope     = 'sub',
@@ -199,18 +199,111 @@ class ldap::server::slave(
     motd::register { 'ldap::server::slave': }
   }
 
+  file { ['/var/cache/local', '/var/cache/local/preseeding']:
+    ensure  => directory,
+    owner   => 'root',
+    group   => 'root',
+  }
+
+  file { "/var/cache/local/preseeding/slapd.seed":
+    ensure  => present,
+    content => template("ldap/slapd.seed.erb"),
+    owner   => 'root',
+    group   => 'root',
+  }
+
   package { $ldap::params::server_package:
-    ensure => $ensure
+    ensure        => $ensure,
+    responsefile  => "/var/cache/local/preseeding/slapd.seed",
   }
 
   service { $ldap::params::service:
-    ensure     => running,
-    enable     => true,
-    pattern    => $ldap::params::server_pattern,
-    require    => [
+    ensure  => running,
+    enable  => true,
+    pattern => $ldap::params::server_pattern,
+    require => [
       Package[$ldap::params::server_package],
-      File["${ldap::params::prefix}/${ldap::params::server_config}"],
-      ]
+    ],
+  }
+
+  ldapdn { "database config":
+    dn                => "olcDatabase={1}bdb,cn=config",
+    attributes        => [
+      'olcAccess: to *  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage',
+      'olcAccess: to dn.subtree="dc=foo,dc=bar"  attrs=userPassword,shadowLastChange  by self write  by anonymous auth  by * none',
+      'olcAccess: to dn.subtree="dc=foo,dc=bar"  attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid  by * read',
+      'olcAccess: to dn.subtree="dc=foo,dc=bar"  by self read  by * read',
+      'olcDbIndex: objectClass eq',
+      'olcDbIndex: entryCSN eq',
+      'olcDbIndex: entryUUID eq',
+      'olcDbIndex: uidNumber eq',
+      'olcDbIndex: gidNumber eq',
+      'olcDbIndex: cn pres,eq,sub',
+      'olcDbIndex: sn pres,eq,sub',
+      'olcDbIndex: uid pres,eq,sub',
+      'olcDbIndex: displayName pres,eq,sub',
+      'olcDbIndex: mail pres',
+      'olcLastMod: TRUE',
+      "olcRootPW: ${rootpw}",
+    ],
+    unique_attributes => [
+      'olcAccess',
+      'olcLastMod',
+      'olcRootPW',
+    ],
+    ensure            => present,
+  }
+
+  ldapdn { "module config":
+    dn                => "cn=module{0},cn=config",
+    attributes        => [
+      "olcModulePath: ${ldap::params::module_prefix}",
+    ],
+    unique_attributes => ['olcModulePath'],
+    ensure            => present,
+  }
+
+  ldap::module { $ldap::params::modules_base: }
+  ldap::module { $modules_inc: }
+
+  ldap::builtin_schema { $ldap::params::schema_base: }
+  ldap::builtin_schema { $schema_inc: }
+
+  ldapdn { "syncrepl":
+    dn                => "olcDatabase={1}bdb,cn=config",
+    attributes        => [
+      "olcSyncrepl: rid=${sync_rid} provider=${sync_provider} bindmethod=simple timeout=0 network-timeout=0 binddn=\"${sync_binddn}\" credentials=\"${sync_bindpw}\" keepalive=0:0:0 starttls=no filter=\"${sync_filter}\" searchbase=\"${sync_base}\" scope=${sync_scope} attrs=\"${sync_attrs}\" schemachecking=off type=${sync_type} interval=${sync_interval} retry=undefined",
+      "olcLimits: dn.exact=\"${sync_binddn}\" time.soft=unlimited time.hard=unlimited size.soft=unlimited size.hard=unlimited",
+    ],
+    unique_attributes => [
+      'olcLimits',
+      'olcSyncrepl',
+    ],
+    ensure            => present,
+  }
+
+  ldapdn { "updateref":
+    dn                => "olcDatabase={1}bdb,cn=config",
+    attributes        => [
+      "olcUpdateRef: ${sync_provider}",
+    ],
+    unique_attributes => [
+      'olcUpdateRef',
+    ],
+    ensure            => present,
+    require           => Ldapdn['syncrepl'],
+  }
+
+  ldapdn { "global confg":
+    dn                => "cn=config",
+    attributes        => [
+      "olcArgsFile: ${ldap::params::server_run}/slapd.args",
+      "olcLogLevel: ${log_level}",
+      "olcPidFile: ${ldap::params::server_run}/slapd.pid",
+    ],
+    unique_attributes => $ldap::params::cnconfig_default_attrs,
+    ensure            => present,
+    notify            => Service[$ldap::params::service],
   }
 
   ldapdn { "cnconfig_attrs":
@@ -224,23 +317,6 @@ class ldap::server::slave(
     mode    => '0640',
     owner   => $ldap::params::server_owner,
     group   => $ldap::params::server_group,
-  }
-
-  file { "${ldap::params::prefix}/${ldap::params::server_config}":
-    ensure  => $ensure,
-    content => template("ldap/${ldap::params::prefix}/${ldap::params::server_config}.erb"),
-    notify  => Service[$ldap::params::service],
-    require => $ssl ? {
-      false => [
-        Package[$ldap::params::server_package],
-        ],
-      true  => [
-        Package[$ldap::params::server_package],
-        File['ssl_ca'],
-        File['ssl_cert'],
-        File['ssl_key'],
-        ]
-      }
   }
 
   $msg_prefix = 'SSL enabled. You must specify'
@@ -285,11 +361,24 @@ class ldap::server::slave(
       path    => [ "/bin", "/usr/bin", "/sbin", "/usr/sbin" ]
     }
 
+    ldapdn { "SSL config":
+      dn                => "cn=config",
+      attributes        => [
+        "olcTLSCACertificateFile: ${ldap::params::ssl_prefix}/${ssl_ca}",
+        "olcTLSCertificateFile: ${ldap::params::ssl_prefix}/${ssl_cert}",
+        "olcTLSCertificateKeyFile: ${ldap::params::ssl_prefix}/${ssl_key}",
+      ],
+      unique_attributes => $ldap::params::cnconfig_default_attrs,
+      ensure            => present,
+      require           => [File['ssl_ca'], File['ssl_cert'], File['ssl_key'], Exec['Server certificate hash']],
+      notify            => Service[$ldap::params::service],
+    }
+
   }
 
   # Additional configurations (for rc scripts)
   case $::osfamily {
-    
+
     'Debian' : {
       class { 'ldap::server::debian': ssl => $ssl }
     }

@@ -116,12 +116,16 @@ describe "slapd slave" do
     it { should return_stdout /syncprov/ }
   end
 
-  describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(objectClass=olcDatabaseConfig)" olcSyncrepl') do
-    its(:stdout) { should include 'rid=123 provider=ldapi:/// bindmethod=simple timeout=0 network-ti
- meout=0 binddn="cn=sync,dc=foo,dc=bar" credentials="foobar" keepalive=0:0:0 s
- tarttls=no filter="(objectClass=*)" searchbase="dc=foo,dc=bar" scope=sub attr
- s="*" schemachecking=off type=refreshOnly interval=00:00:10:00 retry=undefine
- d' }
+  describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(olcSuffix=dc=foo,dc=bar)" olcSyncrepl | perl -p00e \'s/\r?\n //g\'') do
+    its(:stdout) { should include 'rid=123 provider=ldapi:/// bindmethod=simple timeout=0 network-timeout=0 binddn="cn=sync,dc=foo,dc=bar" credentials="foobar" keepalive=0:0:0 starttls=no filter="(objectClass=*)" searchbase="dc=foo,dc=bar" scope=sub attrs="*" schemachecking=off type=refreshOnly interval=00:00:10:00 retry=undefined' }
+  end
+
+  describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(olcSuffix=dc=foo,dc=bar)" olcLimits | perl -p00e \'s/\r?\n //g\'') do
+    its(:stdout) { should include 'dn.exact="cn=sync,dc=foo,dc=bar" time.soft=unlimited time.hard=unlimited size.soft=unlimited size.hard=unlimited' }
+  end
+
+  describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(olcSuffix=dc=foo,dc=bar)" olcUpdateRef | perl -p00e \'s/\r?\n //g\'') do
+    its(:stdout) { should include 'ldapi:///' }
   end
 
   # TLS
