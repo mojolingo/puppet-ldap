@@ -6,23 +6,3 @@
 <% if @bind_anon == true then -%>
 allow bind_anon_dn
 <% end -%>
-
-#######################################################################
-
-# FIXME: puppet
-backend		bdb
-
-# FIXME: puppet
-database	bdb
-suffix		"<%= @suffix %>"
-directory	<%= scope.lookupvar('ldap::params::db_prefix') %>
-rootdn		"<%= @rootdn %>"
-rootpw		"<%= @rootpw %>"
-
-<% scope.lookupvar('ldap::params::index_base').each do |idx| -%>
-<%= idx %>
-<% end -%>
-
-<% @index_inc.each do |idx| -%>
-<%= idx %>
-<% end -%>

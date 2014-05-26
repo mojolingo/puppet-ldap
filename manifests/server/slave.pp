@@ -233,16 +233,6 @@ class ldap::server::slave(
       'olcAccess: to dn.subtree="dc=foo,dc=bar"  attrs=userPassword,shadowLastChange  by self write  by anonymous auth  by * none',
       'olcAccess: to dn.subtree="dc=foo,dc=bar"  attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid  by * read',
       'olcAccess: to dn.subtree="dc=foo,dc=bar"  by self read  by * read',
-      'olcDbIndex: objectClass eq',
-      'olcDbIndex: entryCSN eq',
-      'olcDbIndex: entryUUID eq',
-      'olcDbIndex: uidNumber eq',
-      'olcDbIndex: gidNumber eq',
-      'olcDbIndex: cn pres,eq,sub',
-      'olcDbIndex: sn pres,eq,sub',
-      'olcDbIndex: uid pres,eq,sub',
-      'olcDbIndex: displayName pres,eq,sub',
-      'olcDbIndex: mail pres',
       'olcLastMod: TRUE',
       "olcRootPW: ${rootpw}",
     ],
@@ -253,6 +243,9 @@ class ldap::server::slave(
     ],
     ensure            => present,
   }
+
+  ldap::index { $ldap::params::index_base: }
+  ldap::index { $index_inc: }
 
   ldapdn { "module config":
     dn                => "cn=module{0},cn=config",

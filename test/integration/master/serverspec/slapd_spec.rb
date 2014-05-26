@@ -79,16 +79,16 @@ describe "slapd master" do
   # Indices (default and specified)
   describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" "(objectClass=olcDatabaseConfig)" olcDbIndex') do
     [
-      'olcDbIndex: objectClass eq',
-      'olcDbIndex: entryCSN eq',
-      'olcDbIndex: entryUUID eq',
-      'olcDbIndex: uidNumber eq',
-      'olcDbIndex: gidNumber eq',
-      'olcDbIndex: cn pres,eq,sub',
-      'olcDbIndex: sn pres,eq,sub',
-      'olcDbIndex: uid pres,eq,sub',
-      'olcDbIndex: displayName pres,eq,sub',
-      'olcDbIndex: mail pres',
+      'olcDbIndex: objectClass \s*eq',
+      'olcDbIndex: entryCSN \s*eq',
+      'olcDbIndex: entryUUID \s*eq',
+      'olcDbIndex: uidNumber \s*eq',
+      'olcDbIndex: gidNumber \s*eq',
+      'olcDbIndex: cn \s*pres,sub,eq',
+      'olcDbIndex: sn \s*pres,sub,eq',
+      'olcDbIndex: uid \s*pres,sub,eq',
+      'olcDbIndex: displayName \s*pres,sub,eq',
+      'olcDbIndex: mail \s*pres',
     ].each do |index|
       it { should return_stdout /#{index}/ }
     end

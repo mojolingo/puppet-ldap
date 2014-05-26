@@ -10,7 +10,7 @@ class { 'ldap::server::master':
   rootpw          => 'password',
   schema_inc      => ['ppolicy'],
   modules_inc     => ['ppolicy', 'syncprov'],
-  index_inc       => ['index mail pres'],
+  index_inc       => ['mail pres'],
   syncprov        => true,
   sync_binddn     => 'cn=sync,dc=foo,dc=bar',
   ssl             => true,

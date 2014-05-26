@@ -56,15 +56,15 @@ class ldap::params {
       $schema_prefix   = "${prefix}/schema"
       $schema_base     = [ 'core', 'cosine', 'nis', 'inetorgperson', ]
       $index_base      = [
-        'index objectclass  eq',
-        'index entryCSN     eq',
-        'index entryUUID    eq',
-        'index uidNumber    eq',
-        'index gidNumber    eq',
-        'index cn           pres,sub,eq',
-        'index sn           pres,sub,eq',
-        'index uid          pres,sub,eq',
-        'index displayName  pres,sub,eq',
+        'objectClass  eq',
+        'entryCSN     eq',
+        'entryUUID    eq',
+        'uidNumber    eq',
+        'gidNumber    eq',
+        'cn           pres,sub,eq',
+        'sn           pres,sub,eq',
+        'uid          pres,sub,eq',
+        'displayName  pres,sub,eq',
         ]
 
       #
@@ -171,15 +171,15 @@ class ldap::params {
 
       $server_run    = '/var/run/openldap'
       $index_base    = [
-        'index objectclass  eq',
-        'index entryCSN     eq',
-        'index entryUUID    eq',
-        'index uidNumber    eq',
-        'index gidNumber    eq',
-        'index cn           pres,sub,eq',
-        'index sn           pres,sub,eq',
-        'index uid          pres,sub,eq',
-        'index displayName  pres,sub,eq',
+        'objectclass  eq',
+        'entryCSN     eq',
+        'entryUUID    eq',
+        'uidNumber    eq',
+        'gidNumber    eq',
+        'cn           pres,sub,eq',
+        'sn           pres,sub,eq',
+        'uid          pres,sub,eq',
+        'displayName  pres,sub,eq',
         ]
 
       #
@@ -261,15 +261,15 @@ class ldap::params {
       $schema_base   = [ 'core', 'cosine', 'nis', 'inetorgperson', ]
       $modules_base  = [ 'back_bdb' ]
       $index_base    = [
-        'index objectclass  eq',
-        'index entryCSN     eq',
-        'index entryUUID    eq',
-        'index uidNumber    eq',
-        'index gidNumber    eq',
-        'index cn           pres,sub,eq',
-        'index sn           pres,sub,eq',
-        'index uid          pres,sub,eq',
-        'index displayName  pres,sub,eq',
+        'objectclass  eq',
+        'entryCSN     eq',
+        'entryUUID    eq',
+        'uidNumber    eq',
+        'gidNumber    eq',
+        'cn           pres,sub,eq',
+        'sn           pres,sub,eq',
+        'uid          pres,sub,eq',
+        'displayName  pres,sub,eq',
         ]
 
       #

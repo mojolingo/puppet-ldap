@@ -181,16 +181,6 @@ class ldap::server::master(
       'olcAccess: to dn.subtree="dc=foo,dc=bar"  attrs=userPassword,shadowLastChange  by dn.base="cn=sync,dc=foo,dc=bar" read  by self write  by anonymous auth  by * none',
       'olcAccess: to dn.subtree="dc=foo,dc=bar"  attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid  by dn.base="cn=sync,dc=foo,dc=bar" read  by * read',
       'olcAccess: to dn.subtree="dc=foo,dc=bar"  by dn.base="cn=sync,dc=foo,dc=bar" read  by self read  by * read',
-      'olcDbIndex: objectClass eq',
-      'olcDbIndex: entryCSN eq',
-      'olcDbIndex: entryUUID eq',
-      'olcDbIndex: uidNumber eq',
-      'olcDbIndex: gidNumber eq',
-      'olcDbIndex: cn pres,eq,sub',
-      'olcDbIndex: sn pres,eq,sub',
-      'olcDbIndex: uid pres,eq,sub',
-      'olcDbIndex: displayName pres,eq,sub',
-      'olcDbIndex: mail pres',
       'olcLastMod: TRUE',
       "olcRootPW: ${rootpw}",
     ],
@@ -210,6 +200,9 @@ class ldap::server::master(
     unique_attributes => ['olcModulePath'],
     ensure            => present,
   }
+
+  ldap::index { $ldap::params::index_base: }
+  ldap::index { $index_inc: }
 
   ldap::module { $ldap::params::modules_base: }
   ldap::module { $modules_inc: }
