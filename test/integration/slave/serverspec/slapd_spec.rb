@@ -142,6 +142,16 @@ describe "slapd slave" do
     it { should return_stdout /dn:cn=admin,dc=foo,dc=bar/ }
   end
 
+  # Directory can be manipulated by ldapdn resources
+  describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -s base -b "ou=users,dc=foo,dc=bar" "(objectClass=organizationalUnit)"') do
+    it { should return_stdout /ou: users/ }
+  end
+
+  # Setting arbitrary config options
+  describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(cn=config)" olcConcurrency') do
+    it { should return_stdout %r{olcConcurrency: 1} }
+  end
+
   # Log level
   describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(cn=config)" olcLogLevel') do
     it { should return_stdout %r{olcLogLevel: 4} }
