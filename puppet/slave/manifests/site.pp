@@ -20,4 +20,5 @@ class { 'ldap::server::slave':
   ssl_ca        => 'ca.pem',
   ssl_cert      => 'master-ldap.pem',
   ssl_key       => 'master-ldap.key',
+  log_level     => '4',
 }

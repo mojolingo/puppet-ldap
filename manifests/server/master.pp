@@ -236,6 +236,15 @@ class ldap::server::master(
     }
   }
 
+  ldapdn { "global confg":
+    dn                => "cn=config",
+    attributes        => [
+      "olcLogLevel: ${log_level}",
+    ],
+    unique_attributes => $ldap::params::cnconfig_default_attrs,
+    ensure            => present,
+  }
+
   ldapdn { "cnconfig_attrs":
     dn                => "cn=config",
     attributes        => $cnconfig_attrs,

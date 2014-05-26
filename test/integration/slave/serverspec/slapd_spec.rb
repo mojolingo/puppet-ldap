@@ -141,4 +141,9 @@ describe "slapd slave" do
   describe command('ldapwhoami -H ldaps:/// -x -D cn=admin,dc=foo,dc=bar -w password') do
     it { should return_stdout /dn:cn=admin,dc=foo,dc=bar/ }
   end
+
+  # Log level
+  describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(cn=config)" olcLogLevel') do
+    it { should return_stdout %r{olcLogLevel: 4} }
+  end
 end

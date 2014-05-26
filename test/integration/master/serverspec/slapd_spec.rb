@@ -146,4 +146,9 @@ describe "slapd master" do
   describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(cn=config)" olcConcurrency') do
     it { should return_stdout %r{olcConcurrency: 1} }
   end
+
+  # Log level
+  describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(cn=config)" olcLogLevel') do
+    it { should return_stdout %r{olcLogLevel: 4} }
+  end
 end
