@@ -238,7 +238,6 @@ class ldap::server::master(
     ],
     unique_attributes => $ldap::params::cnconfig_default_attrs,
     ensure            => present,
-    notify            => Service[$ldap::params::service],
   }
 
   ldapdn { "cnconfig_attrs":
