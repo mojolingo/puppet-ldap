@@ -7,5 +7,6 @@ define ldap::module() {
       "olcModuleLoad: ${name}"
     ],
     ensure      => present,
+    require     => Ldapdn['module config'],
   }
 }

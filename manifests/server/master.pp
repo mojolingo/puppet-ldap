@@ -199,6 +199,8 @@ class ldap::server::master(
   ldapdn { "module config":
     dn                => "cn=module{0},cn=config",
     attributes        => [
+      'objectClass: olcModuleList',
+      'cn: module{0}',
       "olcModulePath: ${ldap::params::module_prefix}",
     ],
     unique_attributes => ['olcModulePath'],
