@@ -65,15 +65,6 @@ class ldap::params {
         'displayName  pres,sub,eq',
         ]
 
-      #
-      # olcTLS* attributes are not defined here
-      # because they do have their own behavior
-      # according to the puppet module parameters
-      #
-      #  olcTLSCACertificatePath = $ssl_ca
-      #  olcTLSCertificateFile = $ssl_cert
-      #  olcTLSCertificateKeyFile = $ssl_key
-      #
       $cnconfig_default_attrs = [
         'olcConfigFile',
         'olcConfigDir',
@@ -98,6 +89,9 @@ class ldap::params {
         'olcSaslSecProps',
         'olcSockbufMaxIncoming',
         'olcSockbufMaxIncomingAuth',
+        'olcTLSCACertificateFile',
+        'olcTLSCertificateKeyFile',
+        'olcTLSCertificateFile',
         'olcTLSVerifyClient',
         'olcThreads',
         'olcToolThreads',
@@ -180,15 +174,6 @@ class ldap::params {
         'displayName  pres,sub,eq',
         ]
 
-      #
-      # olcTLS* attributes are not defined here
-      # because they do have their own behavior
-      # according to the puppet module parameters
-      #
-      #  olcTLSCACertificatePath = $ssl_ca
-      #  olcTLSCertificateFile = $ssl_cert
-      #  olcTLSCertificateKeyFile = $ssl_key
-      #
       $cnconfig_default_attrs = [
         'olcConfigFile',
         'olcConfigDir',
@@ -213,6 +198,9 @@ class ldap::params {
         'olcSaslSecProps',
         'olcSockbufMaxIncoming',
         'olcSockbufMaxIncomingAuth',
+        'olcTLSCACertificateFile',
+        'olcTLSCertificateKeyFile',
+        'olcTLSCertificateFile',
         'olcTLSVerifyClient',
         'olcThreads',
         'olcToolThreads',
@@ -270,15 +258,6 @@ class ldap::params {
         'displayName  pres,sub,eq',
         ]
 
-      #
-      # olcTLS* attributes are not defined here
-      # because they do have their own behavior
-      # according to the puppet module parameters
-      #
-      #  olcTLSCACertificatePath = $ssl_ca
-      #  olcTLSCertificateFile = $ssl_cert
-      #  olcTLSCertificateKeyFile = $ssl_key
-      #
       $cnconfig_default_attrs = [
         'olcConfigFile',
         'olcConfigDir',
@@ -303,6 +282,9 @@ class ldap::params {
         'olcSaslSecProps',
         'olcSockbufMaxIncoming',
         'olcSockbufMaxIncomingAuth',
+        'olcTLSCACertificateFile',
+        'olcTLSCertificateKeyFile',
+        'olcTLSCertificateFile',
         'olcTLSVerifyClient',
         'olcThreads',
         'olcToolThreads',
