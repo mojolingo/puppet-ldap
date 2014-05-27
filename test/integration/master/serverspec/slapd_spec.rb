@@ -163,7 +163,7 @@ describe "slapd master" do
   end
 
   # Bind Anon
-  describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(cn=config)" olcBindAnon') do
+  describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(cn=config)" olcDisallows') do
     its(:stdout) { should include 'olcDisallows: bind_anon' }
   end
 end
