@@ -56,7 +56,7 @@ class ldap::params {
       $schema_prefix   = "${prefix}/schema"
       $schema_base     = [ 'core', 'cosine', 'nis', 'inetorgperson', ]
       $index_base      = [
-        'objectClass  eq',
+        'objectClass eq',
         'entryCSN     eq',
         'entryUUID    eq',
         'uidNumber    eq',
@@ -171,7 +171,7 @@ class ldap::params {
 
       $server_run    = '/var/run/openldap'
       $index_base    = [
-        'objectclass  eq',
+        'objectClass eq',
         'entryCSN     eq',
         'entryUUID    eq',
         'uidNumber    eq',
@@ -261,7 +261,7 @@ class ldap::params {
       $schema_base   = [ 'core', 'cosine', 'nis', 'inetorgperson', ]
       $modules_base  = [ 'back_bdb' ]
       $index_base    = [
-        'objectclass  eq',
+        'objectClass eq',
         'entryCSN     eq',
         'entryUUID    eq',
         'uidNumber    eq',
