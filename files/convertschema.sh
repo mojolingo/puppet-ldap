@@ -60,7 +60,7 @@ BASENAME=`basename ${SCHEMAFILE} | cut -d'.' -f1`
 
 # Create a temporary config file and directory to set the schemas to process
 TEMPDIR=$(mktemp -d) || exit 1
-TEMPFILE=$(tempfile -d ${TEMPDIR}) || exit 1
+TEMPFILE=$(mktemp -p ${TEMPDIR}) || exit 1
 
 # Add all of the dependencies
 for dep in `echo ${DEPS} | sed s/,/\\\n/g`; do
