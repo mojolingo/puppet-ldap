@@ -2,6 +2,8 @@ require 'puppet/provider'
 require 'tempfile'
 
 Puppet::Type.type(:ldapdn).provide :ldapdn do
+  INDEX_KEY_MATCHER = /(\S*)\s* .*/
+
   desc ""
 
   commands :ldapmodifycmd => "/usr/bin/ldapmodify"
@@ -146,10 +148,13 @@ Puppet::Type.type(:ldapdn).provide :ldapdn do
           Puppet.debug("check() #{current_key}: #{current_value}  <===>  #{current_key}: #{asserted_value}")
           same_as_an_asserted_value = true if asserted_value == current_value
           same_as_an_asserted_value = true if asserted_value.clone.gsub(/^\{.*?\}/, "") == current_value.clone.gsub(/^\{.*?\}/, "")
+          if current_key == 'olcDbIndex' && asserted_value.match(INDEX_KEY_MATCHER)[1] == current_value.match(INDEX_KEY_MATCHER)[1]
+            same_as_an_asserted_value = true
+          end
         end
         if same_as_an_asserted_value
           Puppet.debug("asserted and found: #{current_key}: #{current_value}")
-          work_to_do[current_key] << [ :delete ] if resource[:ensure] == :absent
+          work_to_do[current_key] << [ :delete ] if resource[:ensure] == :absent || current_key == 'olcDbIndex'
           found_attributes[current_key] << current_value.clone.gsub(/^\{.*?\}/, "")
         else
           Puppet.debug("not asserted: #{current_key}: #{current_value}")

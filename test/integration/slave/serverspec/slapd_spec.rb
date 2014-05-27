@@ -93,7 +93,7 @@ describe "slapd slave" do
       'olcDbIndex: sn \s*pres,sub,eq',
       'olcDbIndex: uid \s*pres,sub,eq',
       'olcDbIndex: displayName \s*pres,sub,eq',
-      'olcDbIndex: mail \s*pres',
+      'olcDbIndex: title \s*pres',
     ].each do |index|
       it { should return_stdout /#{index}/ }
     end

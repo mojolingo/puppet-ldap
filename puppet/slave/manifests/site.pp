@@ -10,7 +10,7 @@ class { 'ldap::server::slave':
   rootpw          => 'password',
   schema_inc      => ['ppolicy'],
   modules_inc     => ['ppolicy', 'syncprov'],
-  index_inc       => ['mail pres'],
+  index_inc       => ['title pres'],
   sync_provider   => 'ldapi:///',
   sync_binddn     => 'cn=sync,dc=foo,dc=bar',
   sync_bindpw     => 'foobar',
