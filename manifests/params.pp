@@ -23,6 +23,8 @@ class ldap::params {
       $ssl_prefix      = '/etc/ssl/certs'
       $server_run      = '/var/run/slapd'
 
+      $main_db_dn = 'olcDatabase={1}bdb,cn=config'
+
       case $::operatingsystemmajrelease {
         5 : {
 
@@ -111,6 +113,8 @@ class ldap::params {
 
       $server_package  = [ 'openldap-servers' ]
       $server_config   = 'slapd.conf'
+
+      $main_db_dn = 'olcDatabase={2}bdb,cn=config'
 
       case $::operatingsystemmajrelease {
         5 : {

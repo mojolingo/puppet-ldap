@@ -175,7 +175,7 @@ class ldap::server::master(
   }
 
   ldapdn { "database config":
-    dn                => "olcDatabase={1}bdb,cn=config",
+    dn                => $ldap::params::main_db_dn,
     attributes        => [
       'olcAccess: to *  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage',
       'olcAccess: to dn.subtree="dc=foo,dc=bar"  attrs=userPassword,shadowLastChange  by dn.base="cn=sync,dc=foo,dc=bar" read  by self write  by anonymous auth  by * none',
@@ -212,7 +212,7 @@ class ldap::server::master(
 
   if($syncprov) {
     ldapdn { "syncprov_config":
-      dn                => "olcOverlay=syncprov,olcDatabase={1}bdb,cn=config",
+      dn                => "olcOverlay=syncprov,${ldap::params::main_db_dn}",
       attributes        => [
         'objectClass: olcOverlayConfig',
         'objectClass: olcSyncProvConfig',
