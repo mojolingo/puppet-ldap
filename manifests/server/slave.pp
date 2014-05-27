@@ -233,6 +233,7 @@ class ldap::server::slave(
       'olcAccess: to dn.subtree="dc=foo,dc=bar"  attrs=userPassword,shadowLastChange  by self write  by anonymous auth  by * none',
       'olcAccess: to dn.subtree="dc=foo,dc=bar"  attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid  by * read',
       'olcAccess: to dn.subtree="dc=foo,dc=bar"  by self read  by * read',
+      'olcDbCheckpoint: 512 30',
       'olcLastMod: TRUE',
       "olcSuffix: ${suffix}",
       "olcRootDN: ${rootdn}",
@@ -240,6 +241,7 @@ class ldap::server::slave(
     ],
     unique_attributes => [
       'olcAccess',
+      'olcDbCheckpoint',
       'olcLastMod',
       'olcSuffix',
       'olcRootDN',
