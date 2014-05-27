@@ -6,7 +6,7 @@ define ldap::builtin_schema() {
     cwd     => $ldap::params::schema_prefix,
     creates => "${ldap::params::schema_prefix}/${name}.ldif",
     command => "${ldap::params::prefix}/convertschema.sh -s ${name}.schema -l ${name}.ldif",
-    require => File["${ldap::params::prefix}/convertschema.sh"],
+    require => [Package[$ldap::params::server_package], File["${ldap::params::prefix}/convertschema.sh"]],
   }
 
   exec { "load_schema_${name}":
