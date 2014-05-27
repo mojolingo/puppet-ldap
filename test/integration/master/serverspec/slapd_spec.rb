@@ -142,14 +142,23 @@ describe "slapd master" do
     it { should return_stdout %r{olcLogLevel: 4} }
   end
 
+  let(:run_dir) do
+    case property[:os_by_host]['localhost'][:family]
+    when /redhat/i
+      '/var/run/openldap'
+    else
+      '/var/run/slapd'
+    end
+  end
+
   # PID file
   describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(cn=config)" olcPidFile') do
-    it { should return_stdout %r{olcPidFile: /var/run/slapd/slapd.pid} }
+    it { should return_stdout %r{olcPidFile: #{run_dir}/slapd.pid} }
   end
 
   # Args file
   describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(cn=config)" olcArgsFile') do
-    it { should return_stdout %r{olcArgsFile: /var/run/slapd/slapd.args} }
+    it { should return_stdout %r{olcArgsFile: #{run_dir}/slapd.args} }
   end
 
   # Bind Anon
