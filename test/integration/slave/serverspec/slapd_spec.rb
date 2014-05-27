@@ -67,16 +67,6 @@ describe "slapd slave" do
   end
 
   # DB performance tweaks are set
-  describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" "(objectClass=olcDatabaseConfig)" olcDbConfig') do
-    [
-      'set_cachesize\s*0 2097152 0',
-      'set_lk_max_objects\s*1500',
-      'set_lk_max_locks\s*1500',
-      'set_lk_max_lockers\s*1500',
-    ].each do |tweak|
-      it { should return_stdout /#{tweak}/ }
-    end
-  end
   describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" "(objectClass=olcDatabaseConfig)" olcDbCheckpoint') do
     it { should return_stdout /512 30/ }
   end
