@@ -218,7 +218,7 @@ class ldap::server::master(
 
   if($syncprov) {
     ldapdn { "syncprov_config":
-      dn                => "olcOverlay=syncprov,${ldap::params::main_db_dn}",
+      dn                => "olcOverlay={0}syncprov,${ldap::params::main_db_dn}",
       attributes        => [
         'objectClass: olcOverlayConfig',
         'objectClass: olcSyncProvConfig',
