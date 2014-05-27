@@ -306,6 +306,16 @@ class ldap::server::slave(
     ensure            => present,
   }
 
+  if(!$bind_anon) {
+    ldapdn { "disallow_bind_anon":
+      dn          => "cn=config",
+      attributes  => [
+        'olcDisallows: bind_anon',
+      ],
+      ensure      => present,
+    }
+  }
+
   File {
     mode    => '0640',
     owner   => $ldap::params::server_owner,

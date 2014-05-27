@@ -19,6 +19,7 @@ class { 'ldap::server::master':
   ssl_key         => 'master-ldap.key',
   cnconfig_attrs  => ['olcConcurrency: 1'],
   log_level       => '4',
+  bind_anon       => false,
 }
 
 ldapdn { 'add database':

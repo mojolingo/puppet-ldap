@@ -170,4 +170,9 @@ describe "slapd slave" do
   describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(cn=config)" olcArgsFile') do
     it { should return_stdout %r{olcArgsFile: /var/run/slapd/slapd.args} }
   end
+
+  # Bind Anon
+  describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(cn=config)" olcBindAnon') do
+    its(:stdout) { should_not include 'olcDisallows: bind_anon' }
+  end
 end
