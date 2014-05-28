@@ -47,3 +47,30 @@ ldapdn { "ou users":
   ensure            => present,
   require           => Ldapdn['add database'],
 }
+
+ldapdn { "test user":
+  dn                      => "uid=testuser,ou=users,dc=foo,dc=bar",
+  attributes              => [
+    'objectClass: top',
+    'objectClass: person',
+    'objectClass: organizationalPerson',
+    'objectClass: inetOrgPerson',
+    'cn: Joe Bloggs',
+    'sn: Bloggs',
+    'uid: someuser',
+    'givenName: Joe',
+    'mail: foo@bar.com',
+    'userPassword: {ssha}YlANix4RcH5rySCWSmzoSzbvj2hzb21lc2FsdA==', # somepassword
+  ],
+  unique_attributes       => [
+    'uid',
+    'cn',
+    'sn',
+    'givenName',
+    'mail',
+    'userPassword',
+  ],
+  indifferent_attributes  => ["userPassword"],
+  ensure                  => present,
+  require                 => Ldapdn['ou users'],
+}

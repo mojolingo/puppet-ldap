@@ -29,6 +29,11 @@ describe "slapd master" do
     it { should return_stdout /dn:cn=admin,dc=foo,dc=bar/ }
   end
 
+  # Can bind as a created user
+  describe command('ldapwhoami -H ldapi:/// -x -D uid=testuser,ou=users,dc=foo,dc=bar -w somepassword') do
+    it { should return_stdout /dn:uid=testuser,ou=users,dc=foo,dc=bar/ }
+  end
+
   # Requested suffix exists in cn=config
   describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" "(objectClass=olcDatabaseConfig)" olcSuffix') do
     it { should return_stdout /olcSuffix: dc=foo,dc=bar/ }
@@ -88,9 +93,9 @@ describe "slapd master" do
   describe command('ldapsearch -H ldapi:/// -LLL -Y EXTERNAL -b "cn=config" "(olcSuffix=dc=foo,dc=bar)" olcAccess | perl -p00e \'s/\r?\n //g\'') do
     [
       /to \*  by dn.base="gidNumber=0\+uidNumber=0,cn=peercred,cn=external,cn=auth" manage/,
-      /to dn.subtree="dc=foo,dc=bar"  attrs=userPassword,shadowLastChange  by dn.base="cn=sync,dc=foo,dc=bar" read  by self write  by anonymous auth  by \* none/,
-      /to dn.subtree="dc=foo,dc=bar"  attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid  by dn.base="cn=sync,dc=foo,dc=bar" read  by \* read/,
-      /to dn.subtree="dc=foo,dc=bar"  by dn.base="cn=sync,dc=foo,dc=bar" read  by self read  by \* read/,
+      /to dn.subtree="dc=foo,dc=bar"  attrs=userPassword,shadowLastChange  by dn.base="cn=sync,dc=foo,dc=bar" read  by dn.base="gidNumber=0\+uidNumber=0,cn=peercred,cn=external,cn=auth" write  by self write  by anonymous auth  by \* none/,
+      /to dn.subtree="dc=foo,dc=bar"  attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid  by dn.base="cn=sync,dc=foo,dc=bar" read  by dn.base="gidNumber=0\+uidNumber=0,cn=peercred,cn=external,cn=auth" write  by \* read/,
+      /to dn.subtree="dc=foo,dc=bar"  by dn.base="cn=sync,dc=foo,dc=bar" read  by dn.base="gidNumber=0\+uidNumber=0,cn=peercred,cn=external,cn=auth" write  by self read  by \* read/,
     ].each do |entry|
       it { should return_stdout entry }
     end

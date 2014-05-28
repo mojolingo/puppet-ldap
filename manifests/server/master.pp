@@ -177,10 +177,10 @@ class ldap::server::master(
   ldapdn { "database config":
     dn                => $ldap::params::main_db_dn,
     attributes        => [
+      'olcAccess: to dn.subtree="dc=foo,dc=bar"  attrs=userPassword,shadowLastChange  by dn.base="cn=sync,dc=foo,dc=bar" read  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" write  by self write  by anonymous auth  by * none',
+      'olcAccess: to dn.subtree="dc=foo,dc=bar"  attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid  by dn.base="cn=sync,dc=foo,dc=bar" read  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" write  by * read',
+      'olcAccess: to dn.subtree="dc=foo,dc=bar"  by dn.base="cn=sync,dc=foo,dc=bar" read  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" write  by self read  by * read',
       'olcAccess: to *  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage',
-      'olcAccess: to dn.subtree="dc=foo,dc=bar"  attrs=userPassword,shadowLastChange  by dn.base="cn=sync,dc=foo,dc=bar" read  by self write  by anonymous auth  by * none',
-      'olcAccess: to dn.subtree="dc=foo,dc=bar"  attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid  by dn.base="cn=sync,dc=foo,dc=bar" read  by * read',
-      'olcAccess: to dn.subtree="dc=foo,dc=bar"  by dn.base="cn=sync,dc=foo,dc=bar" read  by self read  by * read',
       'olcDbCheckpoint: 512 30',
       'olcLastMod: TRUE',
       "olcSuffix: ${suffix}",
