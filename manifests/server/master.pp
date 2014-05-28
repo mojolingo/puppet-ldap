@@ -235,7 +235,7 @@ class ldap::server::master(
         'objectClass: olcSyncProvConfig',
         'olcOverlay: syncprov',
         "olcSpCheckpoint: ${syncprov_checkpoint}",
-        "olcSpSessionLog: ${syncprov_sessionlog}",
+        "olcSpSessionlog: ${syncprov_sessionlog}",
       ],
       unique_attributes => [
         'olcOverlay',
