@@ -41,6 +41,14 @@ class ldap($ensure = present) {
 
     include ldap::params
 
+    file { $ldap::params::prefix:
+      ensure  => $ensure ? {
+                    present => directory,
+                    default => absent,
+                  },
+      require => Package[$ldap::params::package],
+    }
+
     package { $ldap::params::package :
       ensure => $ensure,
     }
