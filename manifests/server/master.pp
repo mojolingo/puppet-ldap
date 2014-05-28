@@ -243,6 +243,7 @@ class ldap::server::master(
         'olcSpSessionlog',
       ],
       ensure            => present,
+      require           => Ldap::Module['syncprov'],
     }
   }
 
