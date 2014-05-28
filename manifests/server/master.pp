@@ -209,8 +209,17 @@ class ldap::server::master(
     ensure            => present,
   }
 
-  ldap::index { $ldap::params::index_base: }
-  ldap::index { $index_inc: }
+  $index_base = $ldap::params::index_base
+  $indices = split(inline_template("<%= (@index_base + @index_inc).map { |index| \"olcDbIndex: #{index}\" }.join(';') %>"),';')
+
+  ldapdn { "indices":
+    dn                => $ldap::params::main_db_dn,
+    attributes        => $indices,
+    unique_attributes => [
+      'olcDbIndex',
+    ],
+    ensure            => present,
+  }
 
   ldap::module { $ldap::params::modules_base: }
   ldap::module { $modules_inc: }
