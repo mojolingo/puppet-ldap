@@ -221,11 +221,11 @@ class ldap::server::master(
     ensure            => present,
   }
 
-  ldap::module { $ldap::params::modules_base: }
-  ldap::module { $modules_inc: }
+  ldap::server::module { $ldap::params::modules_base: }
+  ldap::server::module { $modules_inc: }
 
-  ldap::builtin_schema { $ldap::params::schema_base: }
-  ldap::builtin_schema { $schema_inc: }
+  ldap::server::builtin_schema { $ldap::params::schema_base: }
+  ldap::server::builtin_schema { $schema_inc: }
 
   if($syncprov) {
     ldapdn { "syncprov_config":
@@ -243,7 +243,7 @@ class ldap::server::master(
         'olcSpSessionlog',
       ],
       ensure            => present,
-      require           => Ldap::Module['syncprov'],
+      require           => Ldap::Server::Module['syncprov'],
     }
   }
 

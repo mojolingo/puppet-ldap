@@ -273,11 +273,11 @@ class ldap::server::slave(
     ensure            => present,
   }
 
-  ldap::module { $ldap::params::modules_base: }
-  ldap::module { $modules_inc: }
+  ldap::server::module { $ldap::params::modules_base: }
+  ldap::server::module { $modules_inc: }
 
-  ldap::builtin_schema { $ldap::params::schema_base: }
-  ldap::builtin_schema { $schema_inc: }
+  ldap::server::builtin_schema { $ldap::params::schema_base: }
+  ldap::server::builtin_schema { $schema_inc: }
 
   ldapdn { "syncrepl":
     dn                => $ldap::params::main_db_dn,

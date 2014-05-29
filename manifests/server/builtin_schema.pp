@@ -1,4 +1,4 @@
-define ldap::builtin_schema() {
+define ldap::server::builtin_schema() {
   include ldap::server::convertschema
 
   # Create the LDIF file from the conversion script

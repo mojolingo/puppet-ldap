@@ -1,4 +1,4 @@
-define ldap::module() {
+define ldap::server::module() {
   include ldap
 
   ldapdn { "${name} module config":
