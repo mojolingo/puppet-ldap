@@ -57,7 +57,7 @@ ldapdn { "test user":
     'objectClass: inetOrgPerson',
     'cn: Joe Bloggs',
     'sn: Bloggs',
-    'uid: someuser',
+    'uid: testuser',
     'givenName: Joe',
     'mail: foo@bar.com',
     'userPassword: {ssha}YlANix4RcH5rySCWSmzoSzbvj2hzb21lc2FsdA==', # somepassword
