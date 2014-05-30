@@ -218,24 +218,14 @@ class ldap::server::slave(
     attributes        => [
       "olcSyncrepl: rid=${sync_rid} provider=${sync_provider} bindmethod=simple timeout=0 network-timeout=0 binddn=\"${sync_binddn}\" credentials=\"${sync_bindpw}\" keepalive=0:0:0 starttls=no filter=\"${sync_filter}\" searchbase=\"${sync_base}\" scope=${sync_scope} attrs=\"${sync_attrs}\" schemachecking=off type=${sync_type} interval=${sync_interval} retry=undefined",
       "olcLimits: dn.exact=\"${sync_binddn}\" time.soft=unlimited time.hard=unlimited size.soft=unlimited size.hard=unlimited",
+      "olcUpdateRef: ${sync_provider}",
     ],
     unique_attributes => [
       'olcLimits',
       'olcSyncrepl',
-    ],
-    ensure            => present,
-  }
-
-  ldapdn { "updateref":
-    dn                => $ldap::params::main_db_dn,
-    attributes        => [
-      "olcUpdateRef: ${sync_provider}",
-    ],
-    unique_attributes => [
       'olcUpdateRef',
     ],
     ensure            => present,
-    require           => Ldapdn['syncrepl'],
   }
 
   ldap::server::database { 'primary':
