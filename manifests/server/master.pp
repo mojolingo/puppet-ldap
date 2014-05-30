@@ -147,213 +147,30 @@ class ldap::server::master(
     motd::register { 'ldap::server::master': }
   }
 
-  file { ['/var/cache/local', '/var/cache/local/preseeding']:
-    ensure  => directory,
-    owner   => 'root',
-    group   => 'root',
+  class { 'ldap::server::generic':
+    suffix          => $suffix,
+    schema_inc      => $schema_inc,
+    modules_inc     => $modules_inc,
+    cnconfig_attrs  => $cnconfig_attrs,
+    log_level       => $log_level,
+    bind_anon       => $bind_anon,
+    ssl             => $ssl,
+    ssl_ca          => $ssl_ca,
+    ssl_cert        => $ssl_cert,
+    ssl_key         => $ssl_key,
+    ensure          => $ensure,
   }
 
-  file { "/var/cache/local/preseeding/slapd.seed":
-    ensure  => present,
-    content => template("ldap/slapd.seed.erb"),
-    owner   => 'root',
-    group   => 'root',
-  }
-
-  package { $ldap::params::server_package:
-    ensure        => $ensure,
-    responsefile  => "/var/cache/local/preseeding/slapd.seed",
-  }
-
-  service { $ldap::params::service:
-    ensure  => running,
-    enable  => true,
-    pattern => $ldap::params::server_pattern,
-    require => [
-      Package[$ldap::params::server_package],
-    ],
-  }
-
-  ldapdn { "database config":
-    dn                => $ldap::params::main_db_dn,
-    attributes        => [
-      "olcAccess: to dn.subtree=\"${suffix}\"  attrs=userPassword,shadowLastChange  by dn.base=\"cn=sync,${suffix}\" read  by dn.base=\"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth\" write  by self write  by anonymous auth  by * none",
-      "olcAccess: to dn.subtree=\"${suffix}\"  attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid  by dn.base=\"cn=sync,${suffix}\" read  by dn.base=\"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth\" write  by * read",
-      "olcAccess: to dn.subtree=\"${suffix}\"  by dn.base=\"cn=sync,${suffix}\" read  by dn.base=\"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth\" write  by self read  by * read",
-      'olcAccess: to *  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage',
-      'olcDbCheckpoint: 512 30',
-      'olcLastMod: TRUE',
-      "olcSuffix: ${suffix}",
-      "olcRootDN: ${rootdn}",
-      "olcRootPW: ${rootpw}",
-    ],
-    unique_attributes => [
-      'olcAccess',
-      'olcDbCheckpoint',
-      'olcLastMod',
-      'olcSuffix',
-      'olcRootDN',
-      'olcRootPW',
-    ],
-    ensure            => present,
-  }
-
-  ldapdn { "module config":
-    dn                => "cn=module{0},cn=config",
-    attributes        => [
-      'objectClass: olcModuleList',
-      'cn: module{0}',
-      "olcModulePath: ${ldap::params::module_prefix}",
-    ],
-    unique_attributes => ['olcModulePath'],
-    ensure            => present,
-  }
-
-  $index_base = $ldap::params::index_base
-  $indices = split(inline_template("<%= (@index_base + @index_inc).map { |index| \"olcDbIndex: #{index}\" }.join(';') %>"),';')
-
-  ldapdn { "indices":
-    dn                => $ldap::params::main_db_dn,
-    attributes        => $indices,
-    unique_attributes => [
-      'olcDbIndex',
-    ],
-    ensure            => present,
-  }
-
-  ldap::server::module { $ldap::params::modules_base: }
-  ldap::server::module { $modules_inc: }
-
-  ldap::server::builtin_schema { $ldap::params::schema_base: }
-  ldap::server::builtin_schema { $schema_inc: }
-
-  if($syncprov) {
-    ldapdn { "syncprov_config":
-      dn                => "olcOverlay={0}syncprov,${ldap::params::main_db_dn}",
-      attributes        => [
-        'objectClass: olcOverlayConfig',
-        'objectClass: olcSyncProvConfig',
-        'olcOverlay: syncprov',
-        "olcSpCheckpoint: ${syncprov_checkpoint}",
-        "olcSpSessionlog: ${syncprov_sessionlog}",
-      ],
-      unique_attributes => [
-        'olcOverlay',
-        'olcSpCheckpoint',
-        'olcSpSessionlog',
-      ],
-      ensure            => present,
-      require           => Ldap::Server::Module['syncprov'],
-    }
-  }
-
-  ldapdn { "global confg":
-    dn                => "cn=config",
-    attributes        => [
-      "olcArgsFile: ${ldap::params::server_run}/slapd.args",
-      "olcLogLevel: ${log_level}",
-      "olcPidFile: ${ldap::params::server_run}/slapd.pid",
-    ],
-    unique_attributes => $ldap::params::cnconfig_default_attrs,
-    ensure            => present,
-  }
-
-  ldapdn { "cnconfig_attrs":
-    dn                => "cn=config",
-    attributes        => $cnconfig_attrs,
-    unique_attributes => $ldap::params::cnconfig_default_attrs,
-    ensure            => present,
-  }
-
-  if(!$bind_anon) {
-    ldapdn { "disallow_bind_anon":
-      dn          => "cn=config",
-      attributes  => [
-        'olcDisallows: bind_anon',
-      ],
-      ensure      => present,
-    }
-  }
-
-  File {
-    mode  => '0640',
-    owner => $ldap::params::server_owner,
-    group => $ldap::params::server_group,
-  }
-
-  $msg_prefix = 'SSL enabled. You must specify'
-  $msg_suffix = '(filename). It should be located at puppet:///files/ldap'
-
-  if($ssl) {
-
-    if(!$ssl_ca) { fail("${msg_prefix} ssl_ca ${msg_suffix}") }
-    file { 'ssl_ca':
-      ensure  => present,
-      source  => "puppet:///files/ldap/${ssl_ca}",
-      path    => "${ldap::params::ssl_prefix}/${ssl_ca}",
-      mode    => '0644',
-    }
-
-    if(!$ssl_cert) { fail("${msg_prefix} ssl_cert ${msg_suffix}") }
-    file { 'ssl_cert':
-      ensure  => present,
-      source  => "puppet:///files/ldap/${ssl_cert}",
-      path    => "${ldap::params::ssl_prefix}/${ssl_cert}",
-      mode    => '0644',
-    }
-
-    if(!$ssl_key) { fail("${msg_prefix} ssl_key ${msg_suffix}") }
-    file { 'ssl_key':
-      ensure  => present,
-      source  => "puppet:///files/ldap/${ssl_key}",
-      path    => "${ldap::params::ssl_prefix}/${ssl_key}",
-    }
-
-    # Create certificate hash file
-    exec { 'Server certificate hash':
-      command  => "ln -s ${ldap::params::ssl_prefix}/${ssl_cert} ${ldap::params::cacertdir}/$(openssl x509 -noout -hash -in ${ldap::params::ssl_prefix}/${ssl_cert}).0",
-      unless   => "test -f ${ldap::params::cacertdir}/$(openssl x509 -noout -hash -in ${ldap::params::ssl_prefix}/${ssl_cert}).0",
-      provider => $::puppetversion ? {
-                    /^3./   => 'shell',
-                    /^2.7/  => 'shell',
-                    /^2.6/  => 'posix',
-                    default => 'posix'
-                  },
-      require  => File['ssl_cert'],
-      path     => [ "/bin", "/usr/bin", "/sbin", "/usr/sbin" ]
-    }
-
-    ldapdn { "SSL config":
-      dn                => "cn=config",
-      attributes        => [
-        "olcTLSCACertificateFile: ${ldap::params::ssl_prefix}/${ssl_ca}",
-        "olcTLSCertificateFile: ${ldap::params::ssl_prefix}/${ssl_cert}",
-        "olcTLSCertificateKeyFile: ${ldap::params::ssl_prefix}/${ssl_key}",
-      ],
-      unique_attributes => $ldap::params::cnconfig_default_attrs,
-      ensure            => present,
-      require           => [File['ssl_ca'], File['ssl_cert'], File['ssl_key'], Exec['Server certificate hash']],
-      notify            => Service[$ldap::params::service],
-    }
-
-  }
-
-  # Additional configurations (for rc scripts)
-  case $::osfamily {
-
-    'Debian' : {
-      class { 'ldap::server::debian': ssl => $ssl }
-    }
-
-    'RedHat' : {
-      class { 'ldap::server::redhat': ssl => $ssl }
-    }
-
-    #'Suse' : {
-    #  class { 'ldap::server::suse':   ssl => $ssl }
-    #}
-
+  ldap::server::database { 'primary':
+    suffix              => $suffix,
+    rootpw              => $rootpw,
+    rootdn              => $rootdn,
+    index_inc           => $index_inc,
+    syncprov            => $syncprov,
+    syncprov_checkpoint => $syncprov_checkpoint,
+    syncprov_sessionlog => $syncprov_sessionlog,
+    sync_binddn         => $sync_binddn,
+    master              => true,
   }
 
 }
-
