@@ -213,6 +213,17 @@ class ldap::server::slave(
     ensure          => $ensure,
   }
 
+  ldap::server::database { 'primary':
+    suffix              => $suffix,
+    rootpw              => $rootpw,
+    rootdn              => $rootdn,
+    index_inc           => $index_inc,
+    syncprov            => $syncprov,
+    syncprov_checkpoint => $syncprov_checkpoint,
+    syncprov_sessionlog => $syncprov_sessionlog,
+    sync_binddn         => $sync_binddn,
+  }
+
   ldapdn { "syncrepl":
     dn                => $ldap::params::main_db_dn,
     attributes        => [
@@ -226,17 +237,7 @@ class ldap::server::slave(
       'olcUpdateRef',
     ],
     ensure            => present,
-  }
-
-  ldap::server::database { 'primary':
-    suffix              => $suffix,
-    rootpw              => $rootpw,
-    rootdn              => $rootdn,
-    index_inc           => $index_inc,
-    syncprov            => $syncprov,
-    syncprov_checkpoint => $syncprov_checkpoint,
-    syncprov_sessionlog => $syncprov_sessionlog,
-    sync_binddn         => $sync_binddn,
+    require           => Ldap::Server::Database['primary'],
   }
 
 }
