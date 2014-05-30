@@ -35,6 +35,7 @@ ldapdn { 'add database':
     'o: Foo Dot Bar',
   ],
   unique_attributes => ['dc', 'o'],
+  require           => Class['ldap::server::slave'],
 }
 
 ldapdn { "ou users":

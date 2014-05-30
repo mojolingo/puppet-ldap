@@ -44,7 +44,7 @@
 #
 # === Examples
 #
-# ldap::server::database { 'secondary':
+# ldap::server::database { 'olcDatabase={1}bdb,cn=config':
 #  suffix      => 'dc=foo,dc=bar',
 #  rootpw      => '{SHA}iEPX+SQWIR3p67lj/0zigSWTKHg=',
 #  syncprov    => true,
@@ -80,15 +80,33 @@ define ldap::server::database(
 
   require ldap
 
+  $dn = "olcDatabase=${name},cn=config"
+  $directory = "${ldap::params::db_prefix}/${name}"
+
   if($master and $syncprov) {
     $readable_by_sync = "by dn.base=\"cn=sync,${suffix}\" read  "
   } else {
     $readable_by_sync = ""
   }
 
-  ldapdn { "database config":
-    dn                => $ldap::params::main_db_dn,
+  File {
+    mode    => '0600',
+    owner   => $ldap::params::server_owner,
+    group   => $ldap::params::server_group,
+    require => Package[$ldap::params::server_package],
+  }
+
+  file { $directory:
+    ensure => directory,
+  }
+
+  ldapdn { "${name} database config":
+    dn                => $dn,
     attributes        => [
+      'objectClass: olcDatabaseConfig',
+      'objectClass: olcBdbConfig',
+      "olcDatabase: ${name}",
+      "olcDbDirectory: ${directory}",
       "olcAccess: to dn.subtree=\"${suffix}\"  attrs=userPassword,shadowLastChange  ${readable_by_sync}by dn.base=\"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth\" write  by self write  by anonymous auth  by * none",
       "olcAccess: to dn.subtree=\"${suffix}\"  attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid  ${readable_by_sync}by dn.base=\"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth\" write  by * read",
       "olcAccess: to dn.subtree=\"${suffix}\"  ${readable_by_sync}by dn.base=\"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth\" write  by self read  by * read",
@@ -101,20 +119,23 @@ define ldap::server::database(
     ],
     unique_attributes => [
       'olcAccess',
+      'olcDatabase',
       'olcDbCheckpoint',
+      'olcDbDirectory',
       'olcLastMod',
       'olcSuffix',
       'olcRootDN',
       'olcRootPW',
     ],
     ensure            => present,
+    require           => File[$directory],
   }
 
   $index_base = $ldap::params::index_base
   $indices = split(inline_template("<%= (@index_base + @index_inc).map { |index| \"olcDbIndex: #{index}\" }.join(';') %>"),';')
 
-  ldapdn { "indices":
-    dn                => $ldap::params::main_db_dn,
+  ldapdn { "${name} indices":
+    dn                => $dn,
     attributes        => $indices,
     unique_attributes => [
       'olcDbIndex',
@@ -123,8 +144,8 @@ define ldap::server::database(
   }
 
   if($syncprov) {
-    ldapdn { "syncprov_config":
-      dn                => "olcOverlay={0}syncprov,${ldap::params::main_db_dn}",
+    ldapdn { "${name} syncprov_config":
+      dn                => "olcOverlay={0}syncprov,${dn}",
       attributes        => [
         'objectClass: olcOverlayConfig',
         'objectClass: olcSyncProvConfig',

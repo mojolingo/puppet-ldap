@@ -161,7 +161,7 @@ class ldap::server::master(
     ensure          => $ensure,
   }
 
-  ldap::server::database { 'primary':
+  ldap::server::database { $ldap::params::main_db_name:
     suffix              => $suffix,
     rootpw              => $rootpw,
     rootdn              => $rootdn,

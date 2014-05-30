@@ -213,7 +213,7 @@ class ldap::server::slave(
     ensure          => $ensure,
   }
 
-  ldap::server::database { 'primary':
+  ldap::server::database { $ldap::params::main_db_name:
     suffix              => $suffix,
     rootpw              => $rootpw,
     rootdn              => $rootdn,
@@ -225,7 +225,7 @@ class ldap::server::slave(
   }
 
   ldapdn { "syncrepl":
-    dn                => $ldap::params::main_db_dn,
+    dn                => "olcDatabase=${ldap::params::main_db_name},cn=config",
     attributes        => [
       "olcSyncrepl: rid=${sync_rid} provider=${sync_provider} bindmethod=simple timeout=0 network-timeout=0 binddn=\"${sync_binddn}\" credentials=\"${sync_bindpw}\" keepalive=0:0:0 starttls=no filter=\"${sync_filter}\" searchbase=\"${sync_base}\" scope=${sync_scope} attrs=\"${sync_attrs}\" schemachecking=off type=${sync_type} interval=${sync_interval} retry=undefined",
       "olcLimits: dn.exact=\"${sync_binddn}\" time.soft=unlimited time.hard=unlimited size.soft=unlimited size.hard=unlimited",
@@ -237,7 +237,7 @@ class ldap::server::slave(
       'olcUpdateRef',
     ],
     ensure            => present,
-    require           => Ldap::Server::Database['primary'],
+    require           => Ldap::Server::Database[$ldap::params::main_db_name],
   }
 
 }
