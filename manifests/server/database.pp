@@ -100,28 +100,34 @@ define ldap::server::database(
     ensure => directory,
   }
 
+  $database_options = [
+    'objectClass: olcDatabaseConfig',
+    'objectClass: olcBdbConfig',
+    "olcDatabase: ${name}",
+    "olcDbDirectory: ${directory}",
+    "olcAccess: to dn.subtree=\"${suffix}\"  attrs=userPassword,shadowLastChange  ${readable_by_sync}by dn.base=\"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth\" write  by self write  by anonymous auth  by * none",
+    "olcAccess: to dn.subtree=\"${suffix}\"  attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid  ${readable_by_sync}by dn.base=\"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth\" write  by * read",
+    "olcAccess: to dn.subtree=\"${suffix}\"  ${readable_by_sync}by dn.base=\"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth\" write  by self read  by * read",
+    'olcAccess: to *  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage',
+    'olcDbCheckpoint: 512 30',
+    'olcLastMod: TRUE',
+    "olcSuffix: ${suffix}",
+    "olcRootDN: ${rootdn}",
+    "olcRootPW: ${rootpw}",
+  ]
+
+  $index_base = $ldap::params::index_base
+  $indices = split(inline_template("<%= (@index_base + @index_inc).map { |index| \"olcDbIndex: #{index}\" }.join(';') %>"),';')
+
   ldapdn { "${name} database config":
     dn                => $dn,
-    attributes        => [
-      'objectClass: olcDatabaseConfig',
-      'objectClass: olcBdbConfig',
-      "olcDatabase: ${name}",
-      "olcDbDirectory: ${directory}",
-      "olcAccess: to dn.subtree=\"${suffix}\"  attrs=userPassword,shadowLastChange  ${readable_by_sync}by dn.base=\"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth\" write  by self write  by anonymous auth  by * none",
-      "olcAccess: to dn.subtree=\"${suffix}\"  attrs=objectClass,entry,gecos,homeDirectory,uid,uidNumber,gidNumber,cn,memberUid  ${readable_by_sync}by dn.base=\"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth\" write  by * read",
-      "olcAccess: to dn.subtree=\"${suffix}\"  ${readable_by_sync}by dn.base=\"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth\" write  by self read  by * read",
-      'olcAccess: to *  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage',
-      'olcDbCheckpoint: 512 30',
-      'olcLastMod: TRUE',
-      "olcSuffix: ${suffix}",
-      "olcRootDN: ${rootdn}",
-      "olcRootPW: ${rootpw}",
-    ],
+    attributes        => [$database_options, $indices],
     unique_attributes => [
       'olcAccess',
       'olcDatabase',
       'olcDbCheckpoint',
       'olcDbDirectory',
+      'olcDbIndex',
       'olcLastMod',
       'olcSuffix',
       'olcRootDN',
@@ -129,18 +135,6 @@ define ldap::server::database(
     ],
     ensure            => present,
     require           => File[$directory],
-  }
-
-  $index_base = $ldap::params::index_base
-  $indices = split(inline_template("<%= (@index_base + @index_inc).map { |index| \"olcDbIndex: #{index}\" }.join(';') %>"),';')
-
-  ldapdn { "${name} indices":
-    dn                => $dn,
-    attributes        => $indices,
-    unique_attributes => [
-      'olcDbIndex',
-    ],
-    ensure            => present,
   }
 
   if($syncprov) {

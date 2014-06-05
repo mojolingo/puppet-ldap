@@ -210,7 +210,7 @@ Puppet::Type.type(:ldapdn).provide :ldapdn do
 
   def parse_attributes
     ldap_attributes = PuppetLDAP::OrderedHash.new
-    Array(resource[:attributes]).each do |asserted_attribute|
+    Array(resource[:attributes]).flatten.each do |asserted_attribute|
       key,value = asserted_attribute.split(':', 2)
       ldap_attributes[key] = [] if ldap_attributes[key].nil?
       ldap_attributes[key] << value.strip!
