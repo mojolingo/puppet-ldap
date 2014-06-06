@@ -32,7 +32,7 @@ describe "slapd master" do
     end
 
     describe command('ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" "(objectClass=olcModuleList)" olcModuleLoad') do
-      %w{back_bdb ppolicy}.each do |mod|
+      %w{back_hdb ppolicy}.each do |mod|
         it { should return_stdout /#{mod}/ }
       end
     end

@@ -76,7 +76,7 @@ ldapdn { "test user":
 
 # Secondary database
 
-ldap::server::database { '{2}bdb':
+ldap::server::database { '{2}hdb':
   suffix          => 'dc=doo,dc=dah',
   rootpw          => 'otherpassword',
   index_inc       => ['title pres'],
@@ -96,7 +96,7 @@ ldapdn { 'add secondary database':
     'o: Doo Dot Dah',
   ],
   unique_attributes => ['dc', 'o'],
-  require           => Ldap::Server::Database['{2}bdb'],
+  require           => Ldap::Server::Database['{2}hdb'],
 }
 
 ldapdn { "secondary - ou users":

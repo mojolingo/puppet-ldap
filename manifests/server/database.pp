@@ -44,7 +44,7 @@
 #
 # === Examples
 #
-# ldap::server::database { 'olcDatabase={1}bdb,cn=config':
+# ldap::server::database { 'olcDatabase={1}hdb,cn=config':
 #  suffix      => 'dc=foo,dc=bar',
 #  rootpw      => '{SHA}iEPX+SQWIR3p67lj/0zigSWTKHg=',
 #  syncprov    => true,
@@ -102,7 +102,7 @@ define ldap::server::database(
 
   $database_options = [
     'objectClass: olcDatabaseConfig',
-    'objectClass: olcBdbConfig',
+    'objectClass: olcHdbConfig',
     "olcDatabase: ${name}",
     "olcDbDirectory: ${directory}",
     "olcAccess: to dn.subtree=\"${suffix}\"  attrs=userPassword,shadowLastChange  ${readable_by_sync}by dn.base=\"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth\" write  by self write  by anonymous auth  by * none",

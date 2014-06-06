@@ -23,7 +23,7 @@ class ldap::params {
       $ssl_prefix      = '/etc/ssl/certs'
       $server_run      = '/var/run/slapd'
 
-      $main_db_name = '{1}bdb'
+      $main_db_name = '{1}hdb'
 
       case $::operatingsystemmajrelease {
         5 : {
@@ -51,7 +51,7 @@ class ldap::params {
 
       }
 
-      $modules_base  = [ 'back_bdb' ]
+      $modules_base  = [ 'back_hdb' ]
 
       $schema_prefix   = "${prefix}/schema"
       $schema_base     = [ 'core', 'cosine', 'nis', 'inetorgperson', ]
@@ -114,7 +114,7 @@ class ldap::params {
       $server_package  = [ 'openldap-servers' ]
       $server_config   = 'slapd.conf'
 
-      $main_db_name = '{2}bdb'
+      $main_db_name = '{2}hdb'
 
       case $::operatingsystemmajrelease {
         5 : {
@@ -155,12 +155,12 @@ class ldap::params {
 
         /(?i:OVS)/ : {
           $schema_base   = [ 'core', 'cosine', 'nis', 'inetorgperson', 'authldap' ]
-          $modules_base  = [ 'back_bdb' ]
+          $modules_base  = [ 'back_hdb' ]
         }
 
         default : {
           $schema_base   = [ 'core', 'cosine', 'nis', 'inetorgperson', ]
-          $modules_base  = [ 'back_bdb' ]
+          $modules_base  = [ 'back_hdb' ]
         }
 
       }
@@ -249,7 +249,7 @@ class ldap::params {
       $ssl_prefix    = '/etc/ssl/certs'
       $server_run    = '/var/run/slapd'
       $schema_base   = [ 'core', 'cosine', 'nis', 'inetorgperson', ]
-      $modules_base  = [ 'back_bdb' ]
+      $modules_base  = [ 'back_hdb' ]
       $index_base    = [
         'objectClass eq',
         'entryCSN     eq',
