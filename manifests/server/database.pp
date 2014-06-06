@@ -143,7 +143,7 @@ define ldap::server::database(
       attributes        => [
         'objectClass: olcOverlayConfig',
         'objectClass: olcSyncProvConfig',
-        'olcOverlay: syncprov',
+        'olcOverlay: {0}syncprov',
         "olcSpCheckpoint: ${syncprov_checkpoint}",
         "olcSpSessionlog: ${syncprov_sessionlog}",
       ],
