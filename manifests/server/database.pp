@@ -84,7 +84,7 @@ define ldap::server::database(
   $directory = "${ldap::params::db_prefix}/${name}"
 
   if($master and $syncprov) {
-    $readable_by_sync = "by dn.base=\"cn=sync,${suffix}\" read  "
+    $readable_by_sync = "by dn.base=\"${sync_binddn}\" read  "
   } else {
     $readable_by_sync = ""
   }
