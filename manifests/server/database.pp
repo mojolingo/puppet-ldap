@@ -68,7 +68,7 @@
 #
 define ldap::server::database(
   $suffix,
-  $rootpw,
+  $rootpw              = false,
   $rootdn              = "cn=admin,${suffix}",
   $index_inc           = [],
   $syncprov            = false,
@@ -100,7 +100,7 @@ define ldap::server::database(
     ensure => directory,
   }
 
-  $database_options = [
+  $main_database_options = [
     'objectClass: olcDatabaseConfig',
     'objectClass: olcHdbConfig',
     "olcDatabase: ${name}",
@@ -113,8 +113,13 @@ define ldap::server::database(
     'olcLastMod: TRUE',
     "olcSuffix: ${suffix}",
     "olcRootDN: ${rootdn}",
-    "olcRootPW: ${rootpw}",
   ]
+
+  if($rootpw) {
+    $database_options = [$main_database_options, "olcRootPW: ${rootpw}"]
+  } else {
+    $database_options = $main_database_options
+  }
 
   $index_base = $ldap::params::index_base
   $indices = split(inline_template("<%= (@index_base + @index_inc).map { |index| \"olcDbIndex: #{index}\" }.join(';') %>"),';')
