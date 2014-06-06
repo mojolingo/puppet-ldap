@@ -153,7 +153,7 @@ define ldap::server::database(
         'olcSpSessionlog',
       ],
       ensure            => present,
-      require           => Ldap::Server::Module['syncprov'],
+      require           => [Ldapdn["${name} database config"], Ldap::Server::Module['syncprov']],
     }
   }
 
