@@ -134,7 +134,7 @@ define ldap::server::database(
       'olcRootPW',
     ],
     ensure            => present,
-    require           => File[$directory],
+    require           => [Class['ldap::server::generic'], File[$directory]],
   }
 
   if($syncprov) {
