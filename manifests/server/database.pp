@@ -76,12 +76,12 @@ define ldap::server::database(
   $syncprov_sessionlog = '100',
   $sync_binddn         = false,
   $master              = false,
+  $directory           = "${ldap::params::db_prefix}/${name}",
 ) {
 
   require ldap
 
   $dn = "olcDatabase=${name},cn=config"
-  $directory = "${ldap::params::db_prefix}/${name}"
 
   if($master and $syncprov) {
     $readable_by_sync = "by dn.base=\"${sync_binddn}\" read  "
